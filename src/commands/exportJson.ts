@@ -1,8 +1,11 @@
 import { Command } from '../types/Command';
-import { getFirebaseApp, getServiceAccount } from '../firebaseTools';
-import fs from 'fs';
-import inquirer from 'inquirer';
-import { json } from 'stream/consumers';
+import {
+    getFirebaseApp,
+    getServiceAccountWithConfigOrUserInput,
+    validateAndParseServiceAccountPath,
+} from '../utils/serviceAccountTools';
+import * as fs from 'fs';
+import * as inquirer from 'inquirer';
 
 export const exportJson: Command = {
     name: 'export-json',
@@ -19,22 +22,26 @@ export const exportJson: Command = {
             short: 'c',
             info: 'Name of the collection to export',
         },
+        {
+            name: 'serviceAccountPath',
+            short: 's',
+            info: 'Path to the service account used to access the project',
+        },
     ],
     action: exportJsonAction,
 };
 
 type exportJsonOptions = {
     collection: string;
+    serviceAccountPath: string;
 };
 
-async function exportJsonAction(
-    jsonPath: string,
-    options: exportJsonOptions
-): Promise<void> {
-    const serviceAccount = await getServiceAccount();
+async function exportJsonAction(jsonPath: string, options: exportJsonOptions): Promise<void> {
+    const serviceAccount = options.serviceAccountPath
+        ? await validateAndParseServiceAccountPath(options.serviceAccountPath)
+        : await getServiceAccountWithConfigOrUserInput();
     const app = await getFirebaseApp(serviceAccount);
     const db = app.firestore();
-    console.log(app.name);
 
     if (!fs.existsSync(jsonPath)) {
         throw `File not found : ${jsonPath}`;
