@@ -3,7 +3,7 @@ import { Argument } from './Argument';
 
 export type Command = {
     name: string;
-    argument: Argument;
+    arguments: Argument[];
     options: Option[];
     description: string;
     action: (...args: any[]) => void | Promise<void>;

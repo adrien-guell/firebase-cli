@@ -1,5 +1,7 @@
 import { program } from 'commander';
 import { exportJson } from './commands/exportJson';
+import { Option } from './types/Option';
+import { Argument } from './types/Argument';
 
 const commands = [exportJson];
 
@@ -8,16 +10,25 @@ program.name('firebase-cli');
 commands.forEach((command) => {
     const commanderCommand = program
         .command(command.name)
-        .argument(`[${command.argument.name}]`, command.argument.info)
         .description(command.description)
         .action(command.action);
-    command.options.forEach((option) => {
-        commanderCommand.option(
-            `-${option.short}, --${option.name}${
-                option.paramName ? ` \<${option.paramName}\>` : ''
-            }`,
-            option.info
-        );
+
+    command.arguments.forEach((argument: Argument) => {
+        const name = argument.optional
+            ? `\<${argument.name}\>`
+            : `[${argument.name}]`;
+        commanderCommand.argument(name, argument.info);
+    });
+
+    command.options.forEach((option: Option) => {
+        const shortFlag = option.short ? `-${option.short}, ` : '';
+        const longFlag = `--${option.name}${
+            option.paramName
+                ? ` \<${option.paramName + option.list ? '...' : ''}\>`
+                : ''
+        }`;
+
+        commanderCommand.option(`${shortFlag}${longFlag}`, option.info);
     });
 });
 
