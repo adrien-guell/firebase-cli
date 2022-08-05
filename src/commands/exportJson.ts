@@ -6,6 +6,7 @@ import {
 } from '../utils/serviceAccountTools';
 import * as fs from 'fs';
 import * as inquirer from 'inquirer';
+import { selectOneBetweenExistingCollections } from '../utils/firestoreTools';
 
 export const exportJson: Command = {
     name: 'export-json',
@@ -43,22 +44,9 @@ async function exportJsonAction(jsonPath: string, options: exportJsonOptions): P
     const app = await getFirebaseApp(serviceAccount);
     const db = app.firestore();
 
-    if (!fs.existsSync(jsonPath)) {
-        throw `File not found : ${jsonPath}`;
-    }
+    if (!fs.existsSync(jsonPath)) throw `File not found : ${jsonPath}`;
 
-    let collectionName = options.collection;
-    if (!collectionName) {
-        const collections = await db.listCollections();
-        const collectionsNames = collections.map((collection) => collection.id);
-        collectionName = await inquirer.prompt([
-            {
-                type: 'list',
-                choices: collectionsNames,
-                message: `No collection name given, please select one of the following:`,
-            },
-        ]);
-    }
+    let collectionName = options.collection ?? (await selectOneBetweenExistingCollections(db));
 
     const data = JSON.parse(fs.readFileSync(jsonPath).toString());
 

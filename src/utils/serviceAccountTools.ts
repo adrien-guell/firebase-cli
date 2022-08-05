@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import * as inquirer from 'inquirer';
-import { credential, initializeApp } from 'firebase-admin';
+import * as admin from 'firebase-admin';
 import * as path from 'path';
 import { parseFile } from './utils';
 import { ServiceAccount, serviceAccountDecoder } from '../types/ServiceAccount';
 import { configDecoder } from '../types/Config';
-import cert = credential.cert;
+import cert = admin.credential.cert;
 
 /**
  * Check if the given file path is a valid service account file.
@@ -16,15 +16,10 @@ import cert = credential.cert;
 export function isValidServiceAccountPath(
     serviceAccountPath: string | undefined
 ): string | boolean {
-    if (!serviceAccountPath) {
-        return 'No service account path specified';
-    }
-    if (!fs.existsSync(serviceAccountPath)) {
-        `File not found: ${serviceAccountPath}`;
-    }
-    if (path.extname(serviceAccountPath) != 'json') {
-        return 'Invalid service account file';
-    }
+    if (!serviceAccountPath) return 'No service account path specified';
+    if (!fs.existsSync(serviceAccountPath)) `File not found: ${serviceAccountPath}`;
+    if (path.extname(serviceAccountPath) != '.json') return 'Invalid service account file';
+
     try {
         parseFile(serviceAccountPath, serviceAccountDecoder);
         return true;
@@ -61,7 +56,7 @@ export async function getServiceAccountWithUserInput(
     const answer = await inquirer.prompt({
         type: 'confirm',
         name: 'isDesiredProject',
-        message: `Do you want to use the \'${serviceAccount.project_id}\' project ?`,
+        message: `Do you want to use the '${serviceAccount.project_id}' project ?`,
     });
     return answer.isDesiredProject
         ? serviceAccount
@@ -92,19 +87,19 @@ export async function getServiceAccountWithConfigOrUserInput(
     customMessage?: string
 ): Promise<ServiceAccount> {
     const configPath = '../config.json';
-    if (!fs.existsSync(configPath)) {
-        fs.writeFileSync(configPath, '{}');
-    }
+    if (!fs.existsSync(configPath)) fs.writeFileSync(configPath, '{}');
 
     try {
+        // TODO SINGLE OUT CONFIG MANAGEMENT ACTION
         const config = parseFile(configPath, configDecoder);
         if (isValidServiceAccountPath(config.serviceAccountPath) != true) {
             config.serviceAccountPath = await getServiceAccountPathWithUserInput(customMessage);
-            fs.writeFileSync(configPath, JSON.stringify(configPath));
+            fs.writeFileSync(configPath, JSON.stringify(config));
         }
-        return parseFile(config.serviceAccountPath, serviceAccountDecoder);
+        return parseFile(config.serviceAccountPath!, serviceAccountDecoder);
     } catch (e) {
-        throw 'Config file corrupted, please fix it or delete it: config.json';
+        console.error('Config file corrupted, please fix it or delete it: config.json');
+        process.exit(1);
     }
 }
 
@@ -112,7 +107,17 @@ export async function getServiceAccountWithConfigOrUserInput(
  * Get the firebase app corresponding to the given service account object.
  * Returns a firebase app object.
  * @param { ServiceAccount } serviceAccount a valid service account object.
+ * @param { string | undefined } appName the name of the app (used only to init multiple apps)
  */
-export async function getFirebaseApp(serviceAccount: ServiceAccount) {
-    return initializeApp({ credential: cert(JSON.stringify(serviceAccount)) });
+export async function getFirebaseApp(serviceAccount: ServiceAccount, appName?: string) {
+    return admin.initializeApp(
+        {
+            credential: cert({
+                projectId: serviceAccount.project_id,
+                clientEmail: serviceAccount.client_email,
+                privateKey: serviceAccount.private_key,
+            }),
+        },
+        appName
+    );
 }

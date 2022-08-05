@@ -2,8 +2,9 @@ import { program } from 'commander';
 import { exportJson } from './commands/exportJson';
 import { Option } from './types/Option';
 import { Argument } from './types/Argument';
+import { copyCollections } from './commands/copyCollection';
 
-const commands = [exportJson];
+const commands = [exportJson, copyCollections];
 
 program.name('firebase-cli');
 
@@ -14,18 +15,14 @@ commands.forEach((command) => {
         .action(command.action);
 
     command.arguments.forEach((argument: Argument) => {
-        const name = argument.optional
-            ? `\<${argument.name}\>`
-            : `[${argument.name}]`;
+        const name = argument.optional ? `\<${argument.name}\>` : `[${argument.name}]`;
         commanderCommand.argument(name, argument.info);
     });
 
     command.options.forEach((option: Option) => {
         const shortFlag = option.short ? `-${option.short}, ` : '';
         const longFlag = `--${option.name}${
-            option.paramName
-                ? ` \<${option.paramName + option.list ? '...' : ''}\>`
-                : ''
+            option.paramName ? ` \<${option.paramName + option.list ? '...' : ''}\>` : ''
         }`;
 
         commanderCommand.option(`${shortFlag}${longFlag}`, option.info);
