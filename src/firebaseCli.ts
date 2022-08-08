@@ -2,9 +2,10 @@ import { program } from 'commander';
 import { exportJson } from './commands/exportJson';
 import { Option } from './types/Option';
 import { Argument } from './types/Argument';
-import { copyCollections } from './commands/copyCollection';
+import { copyCollections } from './commands/copyCollections';
+import { deleteCollections } from './commands/deleteCollection';
 
-const commands = [exportJson, copyCollections];
+const commands = [exportJson, copyCollections, deleteCollections];
 
 program.name('firebase-cli');
 

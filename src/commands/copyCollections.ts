@@ -5,7 +5,7 @@ import {
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
 import * as inquirer from 'inquirer';
-import { collectionsExists, selectManyBetweenExistingCollections } from '../utils/firestoreTools';
+import { validateCollectionList } from '../utils/firestoreTools';
 import { Presets, SingleBar } from 'cli-progress';
 import * as chalk from 'chalk';
 
@@ -68,25 +68,12 @@ async function exportJsonAction(
     const destinationApp = await getFirebaseApp(destinationServiceAccount, 'destination');
     const destinationDb = destinationApp.firestore();
 
-    let selectedCollectionsName: string[];
-    if (options?.allCollections) {
-        selectedCollectionsName = await sourceDb.listCollections().then((l) => l.map((c) => c.id));
-    } else {
-        if (!options?.collections || options.collections.length <= 0) {
-            selectedCollectionsName = await selectManyBetweenExistingCollections(sourceDb);
-        } else {
-            if (await collectionsExists(sourceDb, options.collections)) {
-                selectedCollectionsName = options.collections;
-            } else {
-                console.log(
-                    chalk.yellow(
-                        `One or more given collection cannot be found in the ${sourceServiceAccount.project_id} project`
-                    )
-                );
-                selectedCollectionsName = await selectManyBetweenExistingCollections(sourceDb);
-            }
-        }
-    }
+    let selectedCollectionsName = await validateCollectionList(
+        sourceDb,
+        options?.allCollections,
+        options?.collections,
+        sourceServiceAccount.project_id
+    );
 
     const answer = await inquirer.prompt({
         type: 'confirm',
@@ -99,7 +86,7 @@ async function exportJsonAction(
     });
 
     if (!answer.isValid) {
-        console.log(chalk.red('Operation canceled'));
+        console.log(chalk.red('Operation canceled.'));
         process.exit(0);
     }
 
@@ -124,7 +111,7 @@ async function exportJsonAction(
 
     console.log(
         chalk.green(
-            `Collection copied from ${sourceServiceAccount.project_id} to ${destinationServiceAccount.project_id}`
+            `Collection copied from ${sourceServiceAccount.project_id} to ${destinationServiceAccount.project_id}.`
         )
     );
 }

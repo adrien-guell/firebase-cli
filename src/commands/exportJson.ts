@@ -5,11 +5,8 @@ import {
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
 import * as fs from 'fs';
-import { collectionsExists, selectOneBetweenExistingCollections } from '../utils/firestoreTools';
-import Dict = NodeJS.Dict;
 import * as chalk from 'chalk';
 import * as inquirer from 'inquirer';
-import { dict } from 'typescript-json-decoder';
 import { Presets, SingleBar } from 'cli-progress';
 import { parseFile } from '../utils/utils';
 
@@ -37,8 +34,8 @@ type exportJsonOptions = {
     serviceAccountPath?: string;
 };
 
-async function exportJsonAction(jsonPath: string, options: exportJsonOptions): Promise<void> {
-    const serviceAccount = options.serviceAccountPath
+async function exportJsonAction(jsonPath: string, options?: exportJsonOptions): Promise<void> {
+    const serviceAccount = options?.serviceAccountPath
         ? await validateAndParseServiceAccountPath(options.serviceAccountPath)
         : await getServiceAccountWithConfigOrUserInput();
     const app = await getFirebaseApp(serviceAccount);
@@ -61,7 +58,7 @@ async function exportJsonAction(jsonPath: string, options: exportJsonOptions): P
     });
 
     if (!answer.isValid) {
-        console.log(chalk.red('Operation canceled'));
+        console.log(chalk.red('Operation canceled.'));
         process.exit(0);
     }
 
@@ -85,8 +82,6 @@ async function exportJsonAction(jsonPath: string, options: exportJsonOptions): P
     }
 
     console.log(
-        chalk.green(
-            `Successfully exported data from ${jsonPath} to ${serviceAccount.project_id}`
-        )
+        chalk.green(`Successfully exported data from ${jsonPath} to ${serviceAccount.project_id}.`)
     );
 }

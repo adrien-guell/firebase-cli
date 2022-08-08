@@ -1,6 +1,7 @@
 import { firestore } from 'firebase-admin';
 import Firestore = firestore.Firestore;
 import * as inquirer from 'inquirer';
+import * as chalk from 'chalk';
 
 export async function selectOneBetweenExistingCollections(db: Firestore): Promise<string> {
     const collections = await db.listCollections();
@@ -36,4 +37,30 @@ export async function collectionsExists(db: Firestore, collections: string[]): P
     const actualCollections = await db.listCollections();
     const actualCollectionsName = actualCollections.map((collection) => collection.id);
     return collections.every((collectionName) => collectionName in actualCollectionsName);
+}
+
+export async function validateCollectionList(
+    db: Firestore,
+    allCollections: boolean | undefined,
+    collectionNames: string[] | undefined,
+    projectId: string
+): Promise<string[]> {
+    if (allCollections) {
+        return db.listCollections().then((l) => l.map((c) => c.id));
+    } else {
+        if (!collectionNames || collectionNames.length <= 0) {
+            return selectManyBetweenExistingCollections(db);
+        } else {
+            if (await collectionsExists(db, collectionNames)) {
+                return collectionNames;
+            } else {
+                console.log(
+                    chalk.yellow(
+                        `One or more given collection cannot be found in the ${projectId} project`
+                    )
+                );
+                return selectManyBetweenExistingCollections(db);
+            }
+        }
+    }
 }
