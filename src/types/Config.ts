@@ -3,5 +3,5 @@ import { array, decodeType, optional, record, string } from 'typescript-json-dec
 export type Config = decodeType<typeof configDecoder>;
 export const configDecoder = record({
     serviceAccountPath: optional(string),
-    blacklist: optional(array(string)),
+    blacklist: array(string),
 });

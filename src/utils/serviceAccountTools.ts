@@ -4,26 +4,43 @@ import * as admin from 'firebase-admin';
 import * as path from 'path';
 import { parseFile } from './utils';
 import { ServiceAccount, serviceAccountDecoder } from '../types/ServiceAccount';
-import { configDecoder } from '../types/Config';
 import cert = admin.credential.cert;
+import { getBlacklist, getServiceAccountPath, setDefaultServiceAccountPath } from './configTools';
+import * as chalk from 'chalk';
 
 /**
  * Check if the given file path is a valid service account file.
  * Returns true if valid.
  * Returns an error message if invalid.
  * @param { string | undefined } serviceAccountPath file path to check.
+ * @param { boolean } printError true if you want to print the errors.
  */
 export function isValidServiceAccountPath(
-    serviceAccountPath: string | undefined
+    serviceAccountPath: string | undefined,
+    printError: boolean = false
 ): string | boolean {
-    if (!serviceAccountPath) return 'No service account path specified';
-    if (!fs.existsSync(serviceAccountPath)) `File not found: ${serviceAccountPath}`;
-    if (path.extname(serviceAccountPath) != '.json') return 'Invalid service account file';
+    if (!serviceAccountPath) {
+        if (printError) console.log(chalk.red('No service account path specified'));
+        return 'No service account path specified';
+    }
+    if (!fs.existsSync(serviceAccountPath)) {
+        if (printError) console.log(chalk.red(`File not found: ${serviceAccountPath}`));
+        return `File not found: ${serviceAccountPath}`;
+    }
+    if (path.extname(serviceAccountPath) != '.json') {
+        if (printError) console.log(chalk.red('Invalid service account file'));
+        return 'Invalid service account file';
+    }
 
     try {
-        parseFile(serviceAccountPath, serviceAccountDecoder);
+        const serviceAccount = parseFile(serviceAccountPath, serviceAccountDecoder);
+        if (serviceAccount.project_id in getBlacklist()) {
+            if (printError) console.log(chalk.red(`The project '${serviceAccount.project_id}' is blacklisted`));
+            return `The project '${serviceAccount.project_id}' is blacklisted`;
+        }
         return true;
     } catch (_) {
+        if (printError) console.log(chalk.red('Invalid service account file'));
         return 'Invalid service account file';
     }
 }
@@ -38,7 +55,7 @@ export async function getServiceAccountPathWithUserInput(customMessage?: string)
         name: 'serviceAccountPath',
         type: 'input',
         message: customMessage ?? 'What is the path to your firebase project service account ?',
-        validate: isValidServiceAccountPath,
+        validate: (input) => isValidServiceAccountPath(input),
     });
     return answer.serviceAccountPath;
 }
@@ -73,7 +90,7 @@ export async function validateAndParseServiceAccountPath(
     serviceAccountPath: string,
     customMessage?: string
 ): Promise<ServiceAccount> {
-    return isValidServiceAccountPath(serviceAccountPath) != true
+    return isValidServiceAccountPath(serviceAccountPath, true) != true
         ? getServiceAccountWithUserInput(customMessage)
         : parseFile(serviceAccountPath, serviceAccountDecoder);
 }
@@ -86,21 +103,12 @@ export async function validateAndParseServiceAccountPath(
 export async function getServiceAccountWithConfigOrUserInput(
     customMessage?: string
 ): Promise<ServiceAccount> {
-    const configPath = '../config.json';
-    if (!fs.existsSync(configPath)) fs.writeFileSync(configPath, '{}');
-
-    try {
-        // TODO SINGLE OUT CONFIG MANAGEMENT ACTION
-        const config = parseFile(configPath, configDecoder);
-        if (isValidServiceAccountPath(config.serviceAccountPath) != true) {
-            config.serviceAccountPath = await getServiceAccountPathWithUserInput(customMessage);
-            fs.writeFileSync(configPath, JSON.stringify(config));
-        }
-        return parseFile(config.serviceAccountPath!, serviceAccountDecoder);
-    } catch (e) {
-        console.error('Config file corrupted, please fix it or delete it: config.json');
-        process.exit(1);
+    let serviceAccountPath = getServiceAccountPath();
+    if (isValidServiceAccountPath(serviceAccountPath, true) != true) {
+        const serviceAccountPath = await getServiceAccountPathWithUserInput(customMessage);
+        setDefaultServiceAccountPath(serviceAccountPath);
     }
+    return parseFile(serviceAccountPath!, serviceAccountDecoder);
 }
 
 /**

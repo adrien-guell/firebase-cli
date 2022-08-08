@@ -4,8 +4,10 @@ import { Option } from './types/Option';
 import { Argument } from './types/Argument';
 import { copyCollections } from './commands/copyCollections';
 import { deleteCollections } from './commands/deleteCollection';
+import { config } from './commands/config';
+import { blacklist } from './commands/blacklist';
 
-const commands = [exportJson, copyCollections, deleteCollections];
+const commands = [exportJson, copyCollections, deleteCollections, config, blacklist];
 
 program.name('firebase-cli');
 

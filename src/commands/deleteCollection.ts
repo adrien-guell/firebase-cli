@@ -4,16 +4,10 @@ import {
     getServiceAccountWithConfigOrUserInput,
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
-import {
-    collectionsExists,
-    selectManyBetweenExistingCollections,
-    validateCollectionList,
-} from '../utils/firestoreTools';
+import { validateCollectionList } from '../utils/firestoreTools';
 import * as chalk from 'chalk';
 import * as inquirer from 'inquirer';
 import { Presets, SingleBar } from 'cli-progress';
-import { firestore } from 'firebase-admin';
-import Firestore = firestore.Firestore;
 
 export const deleteCollections: Command = {
     name: 'delete-collections',
@@ -39,7 +33,7 @@ export const deleteCollections: Command = {
             info: "Use this option instead of 'collections' to delete all collections in the project",
         },
     ],
-    action: exportJsonAction,
+    action: deleteCollectionsAction,
 };
 
 type deleteCollectionsOptions = {
@@ -48,7 +42,7 @@ type deleteCollectionsOptions = {
     allCollections: boolean;
 };
 
-async function exportJsonAction(options?: deleteCollectionsOptions): Promise<void> {
+async function deleteCollectionsAction(options?: deleteCollectionsOptions): Promise<void> {
     const serviceAccount = options?.serviceAccountPath
         ? await validateAndParseServiceAccountPath(options.serviceAccountPath)
         : await getServiceAccountWithConfigOrUserInput();
