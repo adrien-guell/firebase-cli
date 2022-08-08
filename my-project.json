@@ -1,0 +1,30 @@
+{
+  "collectionOne": {
+    "doc1": {
+      "value": "one",
+      "code": "1"
+    },
+    "doc2": {
+      "value": "two",
+      "code": "2"
+    },
+    "doc3": {
+      "value": "three",
+      "code": "3"
+    }
+  },
+  "collectionTwo": {
+    "doc1": {
+      "value": "one",
+      "code": "1"
+    },
+    "doc2": {
+      "value": "two",
+      "code": "2"
+    },
+    "doc3": {
+      "value": "three",
+      "code": "3"
+    }
+  }
+}

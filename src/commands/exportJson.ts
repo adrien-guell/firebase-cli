@@ -5,8 +5,13 @@ import {
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
 import * as fs from 'fs';
+import { collectionsExists, selectOneBetweenExistingCollections } from '../utils/firestoreTools';
+import Dict = NodeJS.Dict;
+import * as chalk from 'chalk';
 import * as inquirer from 'inquirer';
-import { selectOneBetweenExistingCollections } from '../utils/firestoreTools';
+import { dict } from 'typescript-json-decoder';
+import { Presets, SingleBar } from 'cli-progress';
+import { parseFile } from '../utils/utils';
 
 export const exportJson: Command = {
     name: 'export-json',
@@ -19,12 +24,8 @@ export const exportJson: Command = {
     ],
     options: [
         {
-            name: 'collection',
-            short: 'c',
-            info: 'Name of the collection to export',
-        },
-        {
-            name: 'serviceAccountPath',
+            name: 'service-account-path',
+            argName: 'serviceAccountPath',
             short: 's',
             info: 'Path to the service account used to access the project',
         },
@@ -33,8 +34,7 @@ export const exportJson: Command = {
 };
 
 type exportJsonOptions = {
-    collection: string;
-    serviceAccountPath: string;
+    serviceAccountPath?: string;
 };
 
 async function exportJsonAction(jsonPath: string, options: exportJsonOptions): Promise<void> {
@@ -44,11 +44,49 @@ async function exportJsonAction(jsonPath: string, options: exportJsonOptions): P
     const app = await getFirebaseApp(serviceAccount);
     const db = app.firestore();
 
-    if (!fs.existsSync(jsonPath)) throw `File not found : ${jsonPath}`;
+    if (!fs.existsSync(jsonPath)) {
+        console.log(chalk.red(`File not found : ${jsonPath}`));
+        process.exit(1);
+    }
 
-    let collectionName = options.collection ?? (await selectOneBetweenExistingCollections(db));
+    const collections: { [collectionName: string]: { [documentName: string]: any } | undefined } =
+        parseFile(jsonPath);
 
-    const data = JSON.parse(fs.readFileSync(jsonPath).toString());
+    const answer = await inquirer.prompt({
+        type: 'confirm',
+        name: 'isValid',
+        message: `Are you sure you want to export the content of the file ${chalk.whiteBright(
+            jsonPath
+        )} to the project '${chalk.whiteBright(serviceAccount.project_id)}' ?`,
+    });
 
-    db.collection(collectionName);
+    if (!answer.isValid) {
+        console.log(chalk.red('Operation canceled'));
+        process.exit(0);
+    }
+
+    for (const collectionName in collections) {
+        const documents = collections[collectionName];
+        if (!documents) continue;
+        const dbCollection = db.collection(collectionName);
+
+        const progressBar = new SingleBar(
+            {
+                format: chalk.bgGreen(`Exporting ${collectionName} |{bar}| {percentage}%`),
+            },
+            Presets.shades_classic
+        );
+        progressBar.start(Object.keys(documents).length, 0);
+        for (const documentName in documents) {
+            await dbCollection.doc(documentName).set(documents[documentName]);
+            progressBar.increment();
+        }
+        progressBar.stop();
+    }
+
+    console.log(
+        chalk.green(
+            `Successfully exported data from ${jsonPath} to ${serviceAccount.project_id}`
+        )
+    );
 }

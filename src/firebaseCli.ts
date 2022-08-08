@@ -15,14 +15,14 @@ commands.forEach((command) => {
         .action(command.action);
 
     command.arguments.forEach((argument: Argument) => {
-        const name = argument.optional ? `\<${argument.name}\>` : `[${argument.name}]`;
+        const name = argument.optional ? `[${argument.name}]` : `\<${argument.name}\>`;
         commanderCommand.argument(name, argument.info);
     });
 
     command.options.forEach((option: Option) => {
         const shortFlag = option.short ? `-${option.short}, ` : '';
         const longFlag = `--${option.name}${
-            option.paramName ? ` \<${option.paramName + option.list ? '...' : ''}\>` : ''
+            option.argName ? ` \<${option.argName + option.list ? '...' : ''}\>` : ''
         }`;
 
         commanderCommand.option(`${shortFlag}${longFlag}`, option.info);

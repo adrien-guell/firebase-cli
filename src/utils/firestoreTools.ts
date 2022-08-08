@@ -32,11 +32,7 @@ export async function selectManyBetweenExistingCollections(db: Firestore): Promi
     return answer.selectedCollections;
 }
 
-export async function collectionsExists(
-    db: Firestore,
-    collections: string[] | undefined
-): Promise<boolean> {
-    if (!collections || collections.length <= 0) return false;
+export async function collectionsExists(db: Firestore, collections: string[]): Promise<boolean> {
     const actualCollections = await db.listCollections();
     const actualCollectionsName = actualCollections.map((collection) => collection.id);
     return collections.every((collectionName) => collectionName in actualCollectionsName);

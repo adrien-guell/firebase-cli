@@ -21,19 +21,19 @@ export const myCommand: Command = {
     ],
     options: [
         {
-            name: 'myFirstOptionName',
+            name: 'my-first-option-name', // will be camel cased when given in options
             info: 'what my option is used for',
         },
         {
-            name: 'mySecondOptionName',
+            name: 'my-second-option-name',
             short: 'o', //short flag for the option
-            paramName: 'mySecondOptionParameterName', // --mySecondOptionName [mySecondOptionParameterName]
+            argName: 'mySecondOptionArgumentName', // implise that the option needs an argument
             info: 'what my option is used for',
         },
         { 
-            name: 'myThirdOptionName',
+            name: 'my-third-option-name',
             info: 'what my option is used for',
-            paramName: 'myThirdOptionParameterName', // --myThirdOptionName [myThirdOptionParameterName]
+            argName: 'myThirdOptionArgumentName',
             list: true, // true if the param is a list
         },
     ],
@@ -44,8 +44,9 @@ export const myCommand: Command = {
 Then create an option type like so :
 ```typescript
 type myCommandOptions = {
-    mySecondOptionName: string;
-    myThirdOptionName: string[];
+    myFirstOptionArgumentName: boolean;
+    mySecondOptionArgumentName?: string;
+    myThirdOptionArgumentName?: string[];
 };
 ```
 
@@ -54,7 +55,7 @@ Then define your action function using the following template :
 async function myActionFunction(
     myRequiredArgumentName: string,
     myOptionnalArgumentName?: string,
-    options: myCommandOptions
+    options?: myCommandOptions
 );
 ```
 

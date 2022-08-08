@@ -20,32 +20,40 @@ export const copyCollections: Command = {
     ],
     options: [
         {
-            name: 'sourceServiceAccountPath',
+            name: 'source-service-account-path',
+            argName: 'sourceServiceAccountPath',
             short: 's',
             info: 'Path to the service account used to access the source project',
         },
         {
             name: 'collections',
+            argName: 'collections',
             short: 'c',
             info: 'Name of the collection(s) to copy',
             list: true,
+        },
+        {
+            name: 'all-collections',
+            short: 'a',
+            info: "Use this option instead of 'collections' to select all collections in source project",
         },
     ],
     action: exportJsonAction,
 };
 
 type copyCollectionsOptions = {
-    sourceServiceAccountPath: string;
-    collections: string[];
+    sourceServiceAccountPath?: string;
+    collections?: string[];
+    allCollections: boolean;
 };
 
 async function exportJsonAction(
     destinationServiceAccountPath: string,
-    options: copyCollectionsOptions
+    options?: copyCollectionsOptions
 ): Promise<void> {
     const sourceServicePrompt =
         'What is the path to the firebase service account of the source project ?';
-    const sourceServiceAccount = options.sourceServiceAccountPath
+    const sourceServiceAccount = options?.sourceServiceAccountPath
         ? await validateAndParseServiceAccountPath(options.sourceServiceAccountPath)
         : await getServiceAccountWithConfigOrUserInput(sourceServicePrompt);
     const sourceApp = await getFirebaseApp(sourceServiceAccount, 'source');
@@ -60,22 +68,38 @@ async function exportJsonAction(
     const destinationApp = await getFirebaseApp(destinationServiceAccount, 'destination');
     const destinationDb = destinationApp.firestore();
 
-    let selectedCollectionsName = (await collectionsExists(sourceDb, options.collections))
-        ? options.collections
-        : await selectManyBetweenExistingCollections(sourceDb);
+    let selectedCollectionsName: string[];
+    if (options?.allCollections) {
+        selectedCollectionsName = await sourceDb.listCollections().then((l) => l.map((c) => c.id));
+    } else {
+        if (!options?.collections || options.collections.length <= 0) {
+            selectedCollectionsName = await selectManyBetweenExistingCollections(sourceDb);
+        } else {
+            if (await collectionsExists(sourceDb, options.collections)) {
+                selectedCollectionsName = options.collections;
+            } else {
+                console.log(
+                    chalk.yellow(
+                        `One or more given collection cannot be found in the ${sourceServiceAccount.project_id} project`
+                    )
+                );
+                selectedCollectionsName = await selectManyBetweenExistingCollections(sourceDb);
+            }
+        }
+    }
 
     const answer = await inquirer.prompt({
         type: 'confirm',
         name: 'isValid',
-        message: `Are you sure you want to copy the content of the collections${selectedCollectionsName.map(
-            (c) => `\n  • ${c}`
-        )}\n from the project '${sourceServiceAccount.project_id}' to the project '${
-            destinationServiceAccount.project_id
-        }' ?`,
+        message: `Are you sure you want to copy the content of the collections${chalk.whiteBright(
+            selectedCollectionsName.map((c) => `\n  • ${c}`)
+        )}\n from the project '${chalk.whiteBright(
+            sourceServiceAccount.project_id
+        )}' to the project '${chalk.whiteBright(destinationServiceAccount.project_id)}' ?`,
     });
 
     if (!answer.isValid) {
-        console.log('Operation canceled');
+        console.log(chalk.red('Operation canceled'));
         process.exit(0);
     }
 
@@ -86,7 +110,7 @@ async function exportJsonAction(
         const documents = (await sourceCollection.get()).docs;
         const progressBar = new SingleBar(
             {
-                format: `Copying ${collectionName} |{bar}| {percentage}%`,
+                format: chalk.bgGreen(`Copying ${collectionName} |{bar}| {percentage}%`),
             },
             Presets.shades_classic
         );

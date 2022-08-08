@@ -1,7 +1,7 @@
 export type Option = {
     name: string;
     short?: string;
-    paramName?: string;
+    argName?: string;
     info: string;
     list?: boolean;
 };
