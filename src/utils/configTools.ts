@@ -1,16 +1,16 @@
 import * as fs from 'fs';
 import { parseFile } from './utils';
 import { Config, configDecoder } from '../types/Config';
+import { exitProcess } from './promptTools';
 
 const configPath = '../config.json';
 
-function getConfig() {
+function getConfig(): Config {
     if (!fs.existsSync(configPath)) fs.writeFileSync(configPath, JSON.stringify({ blacklist: [] }));
     try {
         return parseFile(configPath, configDecoder);
     } catch (e) {
-        console.error('Config file corrupted, please fix it or delete it: config.json');
-        process.exit(1);
+        return exitProcess(1, 'Config file corrupted, please fix it or delete it: config.json');
     }
 }
 

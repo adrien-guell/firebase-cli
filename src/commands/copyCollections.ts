@@ -5,9 +5,10 @@ import {
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
 import * as inquirer from 'inquirer';
-import { validateCollectionList } from '../utils/firestoreTools';
+import { copyCollectionAcrossProjects, validateCollectionList } from '../utils/firestoreTools';
 import { Presets, SingleBar } from 'cli-progress';
 import * as chalk from 'chalk';
+import { logSuccess, promptValidateOrExit } from '../utils/promptTools';
 
 export const copyCollections: Command = {
     name: 'copy-collections',
@@ -68,50 +69,24 @@ async function exportJsonAction(
     const destinationApp = await getFirebaseApp(destinationServiceAccount, 'destination');
     const destinationDb = destinationApp.firestore();
 
-    let selectedCollectionsName = await validateCollectionList(
+    let collectionsName = await validateCollectionList(
         sourceDb,
         options?.allCollections,
         options?.collections,
         sourceServiceAccount.project_id
     );
 
-    const answer = await inquirer.prompt({
-        type: 'confirm',
-        name: 'isValid',
-        message: `Are you sure you want to copy the content of the collections${chalk.whiteBright(
-            selectedCollectionsName.map((c) => `\n  • ${c}`)
+    await promptValidateOrExit(
+        `Are you sure you want to copy the content of the collections${chalk.whiteBright(
+            collectionsName.map((c) => `\n  • ${c}`)
         )}\n from the project '${chalk.whiteBright(
             sourceServiceAccount.project_id
-        )}' to the project '${chalk.whiteBright(destinationServiceAccount.project_id)}' ?`,
-    });
+        )}' to the project '${chalk.whiteBright(destinationServiceAccount.project_id)}' ?`
+    );
 
-    if (!answer.isValid) {
-        console.log(chalk.red('Operation canceled.'));
-        process.exit(0);
-    }
+    await copyCollectionAcrossProjects(collectionsName, sourceDb, destinationDb);
 
-    for (const collectionName of selectedCollectionsName) {
-        const sourceCollection = sourceDb.collection(collectionName);
-        const destinationCollection = destinationDb.collection(collectionName);
-
-        const documents = (await sourceCollection.get()).docs;
-        const progressBar = new SingleBar(
-            {
-                format: chalk.bgGreen(`Copying ${collectionName} |{bar}| {percentage}%`),
-            },
-            Presets.shades_classic
-        );
-        progressBar.start(documents.length, 0);
-        for (const document of documents) {
-            await destinationCollection.doc(document.id).set(document.data());
-            progressBar.increment();
-        }
-        progressBar.stop();
-    }
-
-    console.log(
-        chalk.green(
-            `Collection copied from ${sourceServiceAccount.project_id} to ${destinationServiceAccount.project_id}.`
-        )
+    logSuccess(
+        `Collection copied from ${sourceServiceAccount.project_id} to ${destinationServiceAccount.project_id}.`
     );
 }

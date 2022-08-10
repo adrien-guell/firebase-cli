@@ -7,6 +7,7 @@ import { ServiceAccount, serviceAccountDecoder } from '../types/ServiceAccount';
 import cert = admin.credential.cert;
 import { getBlacklist, getServiceAccountPath, setDefaultServiceAccountPath } from './configTools';
 import * as chalk from 'chalk';
+import { logError, promptBinaryQuestion, promptOpenQuestion } from './promptTools';
 
 /**
  * Check if the given file path is a valid service account file.
@@ -20,27 +21,28 @@ export function isValidServiceAccountPath(
     printError: boolean = false
 ): string | boolean {
     if (!serviceAccountPath) {
-        if (printError) console.log(chalk.red('No service account path specified'));
+        if (printError) logError('No service account path specified');
         return 'No service account path specified';
     }
     if (!fs.existsSync(serviceAccountPath)) {
-        if (printError) console.log(chalk.red(`File not found: ${serviceAccountPath}`));
+        if (printError) logError(`File not found: ${serviceAccountPath}`);
         return `File not found: ${serviceAccountPath}`;
     }
     if (path.extname(serviceAccountPath) != '.json') {
-        if (printError) console.log(chalk.red('Invalid service account file'));
+        if (printError) logError('Invalid service account file');
         return 'Invalid service account file';
     }
 
     try {
         const serviceAccount = parseFile(serviceAccountPath, serviceAccountDecoder);
         if (serviceAccount.project_id in getBlacklist()) {
-            if (printError) console.log(chalk.red(`The project '${serviceAccount.project_id}' is blacklisted`));
+            if (printError)
+                logError(`The project '${serviceAccount.project_id}' is blacklisted`);
             return `The project '${serviceAccount.project_id}' is blacklisted`;
         }
         return true;
     } catch (_) {
-        if (printError) console.log(chalk.red('Invalid service account file'));
+        if (printError) logError('Invalid service account file');
         return 'Invalid service account file';
     }
 }
@@ -51,13 +53,10 @@ export function isValidServiceAccountPath(
  * @param { string | undefined } customMessage message prompted to the user. If not given, a default one will be prompted.
  */
 export async function getServiceAccountPathWithUserInput(customMessage?: string): Promise<string> {
-    const answer = await inquirer.prompt({
-        name: 'serviceAccountPath',
-        type: 'input',
-        message: customMessage ?? 'What is the path to your firebase project service account ?',
-        validate: (input) => isValidServiceAccountPath(input),
-    });
-    return answer.serviceAccountPath;
+    return await promptOpenQuestion(
+        customMessage ?? 'What is the path to your firebase project service account ?',
+        (input) => isValidServiceAccountPath(input)
+    );
 }
 
 /**
@@ -70,12 +69,10 @@ export async function getServiceAccountWithUserInput(
 ): Promise<ServiceAccount> {
     const serviceAccountPath = await getServiceAccountPathWithUserInput(customMessage);
     let serviceAccount = parseFile(serviceAccountPath, serviceAccountDecoder);
-    const answer = await inquirer.prompt({
-        type: 'confirm',
-        name: 'isDesiredProject',
-        message: `Do you want to use the '${serviceAccount.project_id}' project ?`,
-    });
-    return answer.isDesiredProject
+
+    return (await promptBinaryQuestion(
+        `Do you want to use the '${serviceAccount.project_id}' project ?`
+    ))
         ? serviceAccount
         : await getServiceAccountWithUserInput(customMessage);
 }

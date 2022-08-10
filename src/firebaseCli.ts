@@ -1,5 +1,5 @@
 import { program } from 'commander';
-import { exportJson } from './commands/exportJson';
+import { importJson } from './commands/importJson';
 import { Option } from './types/Option';
 import { Argument } from './types/Argument';
 import { copyCollections } from './commands/copyCollections';
@@ -7,7 +7,7 @@ import { deleteCollections } from './commands/deleteCollection';
 import { config } from './commands/config';
 import { blacklist } from './commands/blacklist';
 
-const commands = [exportJson, copyCollections, deleteCollections, config, blacklist];
+const commands = [importJson, copyCollections, deleteCollections, config, blacklist];
 
 program.name('firebase-cli');
 
@@ -18,7 +18,9 @@ commands.forEach((command) => {
         .action(command.action);
 
     command.arguments.forEach((argument: Argument) => {
-        const name = argument.optional ? `[${argument.name}]` : `\<${argument.name}\>`;
+        const name = argument.optional
+            ? `[${argument.name + argument.list ? '...' : ''}]`
+            : `\<${argument.name + argument.list ? '...' : ''}\>`;
         commanderCommand.argument(name, argument.info);
     });
 

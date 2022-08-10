@@ -7,6 +7,7 @@ import {
 } from '../utils/serviceAccountTools';
 import { setDefaultServiceAccountPath } from '../utils/configTools';
 import * as chalk from 'chalk';
+import { logSuccess } from '../utils/promptTools';
 
 export const config: Command = {
     name: 'config',
@@ -36,7 +37,5 @@ async function configAction(options?: configOptions): Promise<void> {
         : await getServiceAccountPathWithUserInput();
 
     setDefaultServiceAccountPath(serviceAccountPath);
-    console.log(
-        chalk.green(`Succesfully setted ${serviceAccountPath} as default service account path.`)
-    );
+    logSuccess(`Succesfully setted ${serviceAccountPath} as default service account path.`);
 }

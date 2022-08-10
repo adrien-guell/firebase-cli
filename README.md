@@ -17,6 +17,7 @@ export const myCommand: Command = {
             optional: true,
             name: 'myOptionnalArgumentName',
             info: 'what my optionnal argument is used for',
+            list: true, // true if arguments are a list
         },
     ],
     options: [
@@ -54,7 +55,7 @@ Then define your action function using the following template :
 ```typescript
 async function myActionFunction(
     myRequiredArgumentName: string,
-    myOptionnalArgumentName?: string,
+    myOptionnalArgumentName?: string[],
     options?: myCommandOptions
 );
 ```
