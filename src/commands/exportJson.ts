@@ -6,9 +6,9 @@ import {
 } from '../utils/serviceAccountTools';
 import * as fs from 'fs';
 import * as chalk from 'chalk';
-import * as inquirer from 'inquirer';
 import { exportJsonFromFirestore, validateCollectionList } from '../utils/firestoreTools';
 import { logSuccess, promptBinaryQuestion, promptValidateOrExit } from '../utils/promptTools';
+import { listToBullets } from '../utils/utils';
 
 export const exportJson: Command = {
     name: 'export-json',
@@ -18,6 +18,7 @@ export const exportJson: Command = {
             name: 'collections',
             info: 'collection(s) you wish to export',
             list: true,
+            optional: true,
         },
     ],
     options: [
@@ -69,7 +70,9 @@ async function exportJsonAction(collections: string[], options?: exportJsonOptio
         serviceAccount.project_id
     );
 
-    let filename = options?.outputFile ?? `$firestore_export-{Date.now().toLocaleString()}.json`;
+    const format = (date: Date) =>
+        `${date.getSeconds()}${date.getMinutes()}${date.getHours()}${date.getDay()}${date.getMonth()}${date.getFullYear()}`;
+    let filename = options?.outputFile ?? `firestore_export-${format(new Date())}.json`;
     if (
         fs.existsSync(filename) &&
         !options?.overwrite &&
@@ -86,7 +89,7 @@ async function exportJsonAction(collections: string[], options?: exportJsonOptio
 
     await promptValidateOrExit(
         `Are you sure you want to export the content of the collections${chalk.whiteBright(
-            collectionsName.map((c) => `\n  • ${c}`)
+            listToBullets(collectionsName)
         )}\n from the project '${chalk.whiteBright(
             serviceAccount.project_id
         )}' to the file '${chalk.whiteBright(filename)}' ?`

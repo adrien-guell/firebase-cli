@@ -9,6 +9,7 @@ import {
 } from './promptTools';
 import * as fs from 'fs';
 import * as path from 'path';
+import { writeFileSync } from 'fs';
 
 export async function selectOneBetweenExistingCollections(db: Firestore): Promise<string> {
     const collections = await db.listCollections();
@@ -82,7 +83,7 @@ export async function exportJsonFromFirestore(
         async (increment) => {
             fs.mkdirSync(path.dirname(jsonPath), { recursive: true });
             const jsonData: { [collectionName: string]: { [documentName: string]: any } } = {};
-            for (const collectionName in collectionsName) {
+            for (const collectionName of collectionsName) {
                 const collection = await db.collection(collectionName).get();
                 jsonData[collectionName] = {};
                 collection.docs.forEach((doc) => {
@@ -90,28 +91,24 @@ export async function exportJsonFromFirestore(
                 });
                 increment();
             }
+            writeFileSync(jsonPath, JSON.stringify(jsonData));
         }
     );
 }
 
 export async function deleteCollectionsFromFirestore(collectionsName: string[], db: Firestore) {
+    const batch = db.batch();
     for (const collectionName of collectionsName) {
         await db
             .collection(collectionName)
             .listDocuments()
             .then(async (documents) => {
-                await executeOperationWithProgressBar(
-                    documents.length,
-                    'Deleting',
-                    async (increment) => {
-                        for (const document of documents) {
-                            await document.delete();
-                            increment();
-                        }
-                    }
-                );
+                documents.forEach((doc) => {
+                    batch.delete(doc);
+                });
             });
     }
+    return batch.commit();
 }
 
 export async function copyCollectionAcrossProjects(

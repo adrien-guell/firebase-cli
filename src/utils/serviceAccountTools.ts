@@ -101,7 +101,7 @@ export async function getServiceAccountWithConfigOrUserInput(
 ): Promise<ServiceAccount> {
     let serviceAccountPath = getServiceAccountPath();
     if (isValidServiceAccountPath(serviceAccountPath, true) != true) {
-        const serviceAccountPath = await getServiceAccountPathWithUserInput(customMessage);
+        serviceAccountPath = await getServiceAccountPathWithUserInput(customMessage);
         setDefaultServiceAccountPath(serviceAccountPath);
     }
     return parseFile(serviceAccountPath!, serviceAccountDecoder);

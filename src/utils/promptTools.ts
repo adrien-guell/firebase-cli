@@ -117,6 +117,6 @@ export async function executeOperationWithProgressBar(
     executeOperation: (increment: () => void) => Promise<void>
 ) {
     const progressBar = getProgressBar(size, prefix);
-    await executeOperation(progressBar.increment);
+    await executeOperation(() => progressBar.increment());
     progressBar.stop();
 }
