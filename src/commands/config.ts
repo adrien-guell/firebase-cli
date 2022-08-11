@@ -1,12 +1,9 @@
 import { Command } from '../types/Command';
 import {
     getServiceAccountPathWithUserInput,
-    getServiceAccountWithConfigOrUserInput,
     isValidServiceAccountPath,
-    validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
 import { setDefaultServiceAccountPath } from '../utils/configTools';
-import * as chalk from 'chalk';
 import { logSuccess } from '../utils/promptTools';
 
 export const config: Command = {
@@ -29,13 +26,15 @@ type configOptions = {
 };
 
 async function configAction(options?: configOptions): Promise<void> {
-    let serviceAccountPath = (await isValidServiceAccountPath(
-        options?.defaultServiceAccountPath,
-        true
-    ))
-        ? options!.defaultServiceAccountPath!
-        : await getServiceAccountPathWithUserInput();
+    if (options?.defaultServiceAccountPath) {
+        let serviceAccountPath = (await isValidServiceAccountPath(
+            options?.defaultServiceAccountPath,
+            true
+        ))
+            ? options!.defaultServiceAccountPath!
+            : await getServiceAccountPathWithUserInput();
 
-    setDefaultServiceAccountPath(serviceAccountPath);
-    logSuccess(`Succesfully setted ${serviceAccountPath} as default service account path.`);
+        setDefaultServiceAccountPath(serviceAccountPath);
+        logSuccess(`Succesfully setted ${serviceAccountPath} as default service account path.`);
+    }
 }

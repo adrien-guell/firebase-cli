@@ -28,7 +28,7 @@ export async function selectManyBetweenExistingCollections(db: Firestore): Promi
 export async function collectionsExists(db: Firestore, collections: string[]): Promise<boolean> {
     const actualCollections = await db.listCollections();
     const actualCollectionsName = actualCollections.map((collection) => collection.id);
-    return collections.every((collectionName) => collectionName in actualCollectionsName);
+    return collections.every((collectionName) => actualCollectionsName.includes(collectionName));
 }
 
 export async function validateCollectionList(

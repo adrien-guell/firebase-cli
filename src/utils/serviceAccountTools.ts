@@ -35,9 +35,8 @@ export function isValidServiceAccountPath(
 
     try {
         const serviceAccount = parseFile(serviceAccountPath, serviceAccountDecoder);
-        if (serviceAccount.project_id in getBlacklist()) {
-            if (printError)
-                logError(`The project '${serviceAccount.project_id}' is blacklisted`);
+        if (getBlacklist().includes(serviceAccount.project_id)) {
+            if (printError) logError(`The project '${serviceAccount.project_id}' is blacklisted`);
             return `The project '${serviceAccount.project_id}' is blacklisted`;
         }
         return true;

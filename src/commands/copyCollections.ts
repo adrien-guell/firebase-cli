@@ -9,6 +9,7 @@ import { copyCollectionAcrossProjects, validateCollectionList } from '../utils/f
 import { Presets, SingleBar } from 'cli-progress';
 import * as chalk from 'chalk';
 import { logSuccess, promptValidateOrExit } from '../utils/promptTools';
+import { listToBullets } from '../utils/utils';
 
 export const copyCollections: Command = {
     name: 'copy-collections',
@@ -78,7 +79,7 @@ async function exportJsonAction(
 
     await promptValidateOrExit(
         `Are you sure you want to copy the content of the collections${chalk.whiteBright(
-            collectionsName.map((c) => `\n  • ${c}`)
+            listToBullets(collectionsName)
         )}\n from the project '${chalk.whiteBright(
             sourceServiceAccount.project_id
         )}' to the project '${chalk.whiteBright(destinationServiceAccount.project_id)}' ?`

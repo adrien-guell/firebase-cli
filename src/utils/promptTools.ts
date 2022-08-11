@@ -18,19 +18,34 @@ export function exitProcess(code: number = 0, message: string = 'Operation cance
 }
 
 /** Prompt **/
-export async function promptValidateOrExit(
-    message: string,
-    validate: (input: string) => string | boolean = () => true
-) {
+export async function promptValidateOrExit(message: string) {
     await inquirer
         .prompt({
             type: 'confirm',
             name: 'isValid',
             message: message,
-            validate: validate,
         })
         .then((answer) => {
             if (!answer.isValid) exitProcess();
+        });
+}
+
+export async function promptCustomValidateOrExit(
+    message: string,
+    continueInput: string,
+    cancelInput: string,
+    hintMessage: string = ''
+) {
+    await inquirer
+        .prompt({
+            type: 'input',
+            name: 'input',
+            message: message,
+            validate: (input: string) =>
+                input == continueInput || input == cancelInput ? true : hintMessage,
+        })
+        .then((answer) => {
+            if (answer.input == cancelInput) exitProcess();
         });
 }
 

@@ -8,7 +8,7 @@ import * as fs from 'fs';
 import * as chalk from 'chalk';
 import * as inquirer from 'inquirer';
 import { exportJsonFromFirestore, validateCollectionList } from '../utils/firestoreTools';
-import { logSuccess, promptValidateOrExit } from '../utils/promptTools';
+import { logSuccess, promptBinaryQuestion, promptValidateOrExit } from '../utils/promptTools';
 
 export const exportJson: Command = {
     name: 'export-json',
@@ -70,22 +70,18 @@ async function exportJsonAction(collections: string[], options?: exportJsonOptio
     );
 
     let filename = options?.outputFile ?? `$firestore_export-{Date.now().toLocaleString()}.json`;
-    if (fs.existsSync(filename) && !options?.overwrite) {
-        inquirer
-            .prompt({
-                type: 'confirm',
-                name: 'overwrite',
-                message: '',
-            })
-            .then((answer) => {
-                if (!answer.overwrite) {
-                    let i = 1;
-                    while (fs.existsSync(`${filename}-${i}`)) {
-                        ++i;
-                    }
-                    filename = `${filename}-${i}`;
-                }
-            });
+    if (
+        fs.existsSync(filename) &&
+        !options?.overwrite &&
+        !(await promptBinaryQuestion(
+            `File already exists: ${filename}.\nWould you like to overwrite it ?`
+        ))
+    ) {
+        let i = 1;
+        while (fs.existsSync(`${filename}-${i}`)) {
+            ++i;
+        }
+        filename = `${filename}-${i}`;
     }
 
     await promptValidateOrExit(

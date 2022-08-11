@@ -8,7 +8,8 @@ import { deleteCollectionsFromFirestore, validateCollectionList } from '../utils
 import * as chalk from 'chalk';
 import * as inquirer from 'inquirer';
 import { Presets, SingleBar } from 'cli-progress';
-import { logSuccess, promptValidateOrExit } from '../utils/promptTools';
+import { logSuccess, promptCustomValidateOrExit, promptValidateOrExit } from '../utils/promptTools';
+import { listToBullets } from '../utils/utils';
 
 export const deleteCollections: Command = {
     name: 'delete-collections',
@@ -58,21 +59,19 @@ async function deleteCollectionsAction(options?: deleteCollectionsOptions): Prom
         serviceAccount.project_id
     );
 
-    await promptValidateOrExit(
+    await promptCustomValidateOrExit(
         `Are you sure you want to delete the collections${chalk.whiteBright(
-            collectionsName.map((c) => `\n  • ${c}`)
-        )}\n from the project '${chalk.whiteBright(
+            listToBullets(collectionsName)
+        )}\nfrom the project '${chalk.whiteBright(
             serviceAccount.project_id
-        )}' ?\nTo validate type '${chalk.whiteBright(
+        )}' ?\n\nTo validate type '${chalk.whiteBright(
             serviceAccount.project_id
         )}', else to cancel type '${chalk.whiteBright('cancel')}'.`,
-        (input: string) => {
-            return input == serviceAccount.project_id || input == 'cancel'
-                ? true
-                : `Please enter \'${chalk.whiteBright(
-                      serviceAccount.project_id
-                  )}\' to delete or '${chalk.whiteBright('cancel')}' to cancel.`;
-        }
+        serviceAccount.project_id,
+        'cancel',
+        `Please enter \'${chalk.whiteBright(
+            serviceAccount.project_id
+        )}\' to continue or '${chalk.whiteBright('cancel')}' to cancel.`
     );
 
     await deleteCollectionsFromFirestore(collectionsName, db);

@@ -1,4 +1,6 @@
 {
+  "main": "firebaseCli.ts",
+  "bin": "./firebaseCli.ts",
   "scripts": {
     "build": "tsc"
   },
@@ -19,5 +21,16 @@
     "firebase-admin": "^11.0.1",
     "inquirer": "^8.0.0",
     "typescript-json-decoder": "^1.0.10"
-  }
+  },
+  "name": "firebase-cli",
+  "version": "1.0.0",
+  "description": "CLI to perform complex firebase operations",
+  "keywords": [
+    "cli",
+    "firebase"
+  ],
+  "author": "VISEO",
+  "license": "ICS",
+  "repository": "https://gitlab.com/viseo-pwm-poc/firebase-cli",
+  "homepage": "https://gitlab.com/viseo-pwm-poc/firebase-cli"
 }

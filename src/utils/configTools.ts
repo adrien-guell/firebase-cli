@@ -32,14 +32,14 @@ export function setDefaultServiceAccountPath(serviceAccountPath: string, config?
 export function addToBlacklist(projectIds: string[], config?: Config) {
     if (!config) config = getConfig();
     for (const projectId of projectIds) {
-        if (!(projectId in config.blacklist)) config.blacklist.push();
+        if (!config.blacklist.includes(projectId)) config.blacklist.push(projectId);
     }
     saveConfig(config);
 }
 
 export function removeFromBlacklist(projectIds: string[], config?: Config) {
     if (!config) config = getConfig();
-    config.blacklist = config.blacklist.filter((projectId) => !(projectId in projectIds));
+    config.blacklist = config.blacklist.filter((projectId) => !projectIds.includes(projectId));
     saveConfig(config);
 }
 
