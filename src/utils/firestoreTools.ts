@@ -52,24 +52,15 @@ export async function importJsonToFirestore(jsonPath: string, db: Firestore) {
     const collections: { [collectionName: string]: { [documentName: string]: any } | undefined } =
         parseFile(jsonPath);
 
+    const batch = db.batch();
     for (const collectionName in collections) {
         const documents = collections[collectionName];
         if (!documents) continue;
-
-        await executeOperationWithProgressBar(
-            Object.keys(documents).length,
-            `Importing ${collectionName}`,
-            async (increment) => {
-                for (const documentName in documents) {
-                    await db
-                        .collection(collectionName)
-                        .doc(documentName)
-                        .set(documents[documentName]);
-                    increment();
-                }
-            }
-        );
+        for (const documentName in documents) {
+            batch.set(db.collection(collectionName).doc(documentName), documents[documentName]);
+        }
     }
+    return batch.commit();
 }
 
 export async function exportJsonFromFirestore(
