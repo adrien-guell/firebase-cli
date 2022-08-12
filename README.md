@@ -1,8 +1,34 @@
 # firebase-cli
 
+A CLI to make advenced operations on firebase. Use `firebase-cli help` to see documentation. 
+
+## Import / Export collections
+
+The JSON file must follow the following template :
+```json
+{
+    "collection1": {
+        "document1": {
+            "data1": "value",
+            ...
+        },
+        "document2": {
+            "data1": "value",
+            ...
+        }
+    },
+    "collection2": {
+        "document1": {
+            "data1": "value",
+            ...
+        }
+    }
+}
+```
+
 ## Adding a command
 
-To add a command, create a new ts file in commands folder.
+To add a command, create a new ts file in commands folder.\
 Create a Command object using the following type definition:
 ```typescript
 export const myCommand: Command = {
@@ -60,7 +86,14 @@ async function myActionFunction(
 );
 ```
 
-Finally, add the command to the list of commands in the firebaseCli.ts file :
+Finally, add the command to the list of commands in the index.ts file :
 ```typescript
 const commands = [myCommand, command1, command2];
+```
+
+## Deploy
+
+```shell
+tsc
+npm publish
 ```

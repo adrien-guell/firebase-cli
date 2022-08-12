@@ -1,6 +1,10 @@
 {
-  "main": "firebaseCli.ts",
-  "bin": "./firebaseCli.ts",
+  "main": "lib/index.js",
+  "bin": {
+    "firebase-cli": "./lib/index.js"
+  },
+  "types": "node",
+  "prepublish": "tsc",
   "scripts": {
     "build": "tsc"
   },
@@ -22,14 +26,14 @@
     "inquirer": "^8.0.0",
     "typescript-json-decoder": "^1.0.10"
   },
-  "name": "firebase-cli",
+  "name": "firebase-utils-cli",
   "version": "1.0.0",
   "description": "CLI to perform complex firebase operations",
   "keywords": [
     "cli",
     "firebase"
   ],
-  "author": "VISEO",
+  "author": "Adrien Guell",
   "license": "ICS",
   "repository": "https://gitlab.com/viseo-pwm-poc/firebase-cli",
   "homepage": "https://gitlab.com/viseo-pwm-poc/firebase-cli"

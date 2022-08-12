@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { program } from 'commander';
 import { importJson } from './commands/importJson';
 import { Option } from './types/Option';

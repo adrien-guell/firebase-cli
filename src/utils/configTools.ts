@@ -5,6 +5,9 @@ import { exitProcess } from './promptTools';
 
 const configPath = '../config.json';
 
+/**
+ * Get the configuration file as an object.
+ */
 function getConfig(): Config {
     if (!fs.existsSync(configPath)) fs.writeFileSync(configPath, JSON.stringify({ blacklist: [] }));
     try {
@@ -14,21 +17,38 @@ function getConfig(): Config {
     }
 }
 
+/**
+ * Save a config object in the file config.json.
+ * @param { Config } config config to save.
+ */
 function saveConfig(config: Config) {
     fs.writeFileSync(configPath, JSON.stringify(config));
 }
 
+/**
+ * Get the service account path saved in the config.json.
+ */
 export function getServiceAccountPath(): string | undefined {
     const config = getConfig();
     return config.serviceAccountPath;
 }
 
+/**
+ * Set the service account path in the config.json. You can pass it an existing config object if you already instantiated one.
+ * @param { string } serviceAccountPath path to the service account.
+ * @param { Config | undefined } config already instantiated config object.
+ */
 export function setDefaultServiceAccountPath(serviceAccountPath: string, config?: Config) {
     if (!config) config = getConfig();
     config.serviceAccountPath = serviceAccountPath;
     saveConfig(config);
 }
 
+/**
+ * Add projects to the blacklist in config.json.
+ * @param { string[] } projectIds list of projects to add to the blacklist.
+ * @param { Config | undefined } config already instantiated config object.
+ */
 export function addToBlacklist(projectIds: string[], config?: Config) {
     if (!config) config = getConfig();
     for (const projectId of projectIds) {
@@ -37,12 +57,20 @@ export function addToBlacklist(projectIds: string[], config?: Config) {
     saveConfig(config);
 }
 
+/**
+ * Remove projects from the blacklist in config.json.
+ * @param { string[] } projectIds list of projects to remove from the blacklist.
+ * @param { Config | undefined } config already instantiated config object.
+ */
 export function removeFromBlacklist(projectIds: string[], config?: Config) {
     if (!config) config = getConfig();
     config.blacklist = config.blacklist.filter((projectId) => !projectIds.includes(projectId));
     saveConfig(config);
 }
 
+/**
+ * Get the blacklist from config.json.
+ */
 export function getBlacklist(): string[] {
     const config = getConfig();
     return config.blacklist;
