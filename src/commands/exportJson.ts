@@ -44,6 +44,11 @@ export const exportJson: Command = {
             short: 'a',
             info: "Use this option instead of 'collections' export all collections in the project",
         },
+        {
+            name: 'force',
+            short: 'f',
+            info: 'Forces the operation to be executed without user validation',
+        },
     ],
     action: exportJsonAction,
 };
@@ -53,6 +58,7 @@ type exportJsonOptions = {
     serviceAccountPath?: string;
     overwrite: boolean;
     allCollections: boolean;
+    force: boolean;
 };
 
 async function exportJsonAction(collections: string[], options?: exportJsonOptions): Promise<void> {
@@ -85,13 +91,15 @@ async function exportJsonAction(collections: string[], options?: exportJsonOptio
         filename = `${filename}-${i}`;
     }
 
-    await promptValidateOrExit(
-        `Are you sure you want to export the content of the collections${chalk.whiteBright(
-            listToBullets(collectionsName)
-        )}\n from the project '${chalk.whiteBright(
-            serviceAccount.project_id
-        )}' to the file '${chalk.whiteBright(filename)}' ?`
-    );
+    if (options?.force != true) {
+        await promptValidateOrExit(
+            `Are you sure you want to export the content of the collections${chalk.whiteBright(
+                listToBullets(collectionsName)
+            )}\n from the project '${chalk.whiteBright(
+                serviceAccount.project_id
+            )}' to the file '${chalk.whiteBright(filename)}' ?`
+        );
+    }
 
     await exportJsonFromFirestore(collectionsName, filename, db);
     logSuccess(`Successfully exported data from ${serviceAccount.project_id} into ${filename}.`);

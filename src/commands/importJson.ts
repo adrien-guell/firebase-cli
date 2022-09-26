@@ -25,12 +25,18 @@ export const importJson: Command = {
             short: 's',
             info: 'Path to the service account used to access the project',
         },
+        {
+            name: 'force',
+            short: 'f',
+            info: 'Forces the operation to be executed without user validation',
+        },
     ],
     action: importJsonAction,
 };
 
 type importJsonOptions = {
     serviceAccountPath?: string;
+    force: boolean;
 };
 
 async function importJsonAction(jsonPath: string, options?: importJsonOptions): Promise<void> {
@@ -43,11 +49,13 @@ async function importJsonAction(jsonPath: string, options?: importJsonOptions): 
 
     if (!fs.existsSync(jsonPath)) exitProcess(1, `File not found : ${jsonPath}`);
 
-    await promptValidateOrExit(
-        `Are you sure you want to import the content of the file ${chalk.whiteBright(
-            jsonPath
-        )} to the project '${chalk.whiteBright(serviceAccount.project_id)}' ?`
-    );
+    if (options?.force != true) {
+        await promptValidateOrExit(
+            `Are you sure you want to import the content of the file ${chalk.whiteBright(
+                jsonPath
+            )} to the project '${chalk.whiteBright(serviceAccount.project_id)}' ?`
+        );
+    }
 
     await importJsonToFirestore(jsonPath, db);
     logSuccess(`Successfully imported data from ${jsonPath} to ${serviceAccount.project_id}.`);

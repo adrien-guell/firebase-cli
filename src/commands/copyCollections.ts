@@ -37,6 +37,11 @@ export const copyCollections: Command = {
             short: 'a',
             info: "Use this option instead of 'collections' to select all collections in source project",
         },
+        {
+            name: 'force',
+            short: 'f',
+            info: 'Forces the operation to be executed without user validation',
+        },
     ],
     action: exportJsonAction,
 };
@@ -45,6 +50,7 @@ type copyCollectionsOptions = {
     sourceServiceAccountPath?: string;
     collections?: string[];
     allCollections: boolean;
+    force: boolean;
 };
 
 async function exportJsonAction(
@@ -75,13 +81,16 @@ async function exportJsonAction(
         sourceServiceAccount.project_id
     );
 
-    await promptValidateOrExit(
-        `Are you sure you want to copy the content of the collections${chalk.whiteBright(
-            listToBullets(collectionsName)
-        )}\n from the project '${chalk.whiteBright(
-            sourceServiceAccount.project_id
-        )}' to the project '${chalk.whiteBright(destinationServiceAccount.project_id)}' ?`
-    );
+
+    if (options?.force != true) {
+        await promptValidateOrExit(
+            `Are you sure you want to copy the content of the collections${chalk.whiteBright(
+                listToBullets(collectionsName)
+            )}\n from the project '${chalk.whiteBright(
+                sourceServiceAccount.project_id
+            )}' to the project '${chalk.whiteBright(destinationServiceAccount.project_id)}' ?`
+        );
+    }
 
     await copyCollectionAcrossProjects(collectionsName, sourceDb, destinationDb);
 
