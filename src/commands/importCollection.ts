@@ -9,8 +9,8 @@ import * as chalk from 'chalk';
 import { exitProcess, logSuccess, promptValidateOrExit } from '../utils/promptTools';
 import { importJsonToFirestore } from '../utils/firestoreTools';
 
-export const importJson: Command = {
-    name: 'import-json',
+export const importCollection: Command = {
+    name: 'import-collection',
     description: 'Import a collection as JSON',
     arguments: [
         {
@@ -26,14 +26,17 @@ export const importJson: Command = {
             info: 'Path to the service account used to access the project',
         },
     ],
-    action: importJsonAction,
+    action: importCollectionAction,
 };
 
-type importJsonOptions = {
+type importCollectionOptions = {
     serviceAccountPath?: string;
 };
 
-async function importJsonAction(jsonPath: string, options?: importJsonOptions): Promise<void> {
+async function importCollectionAction(
+    jsonPath: string,
+    options?: importCollectionOptions
+): Promise<void> {
     const serviceAccount = options?.serviceAccountPath
         ? await validateAndParseServiceAccountPath(options.serviceAccountPath)
         : await getServiceAccountWithConfigOrUserInput();

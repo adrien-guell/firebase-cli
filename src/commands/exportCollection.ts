@@ -4,14 +4,17 @@ import {
     getServiceAccountWithConfigOrUserInput,
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
-import * as fs from 'fs';
 import * as chalk from 'chalk';
 import { exportJsonFromFirestore, validateCollectionList } from '../utils/firestoreTools';
-import { logSuccess, promptBinaryQuestion, promptValidateOrExit } from '../utils/promptTools';
+import {
+    getFilenameWithOverwriteValidation,
+    logSuccess,
+    promptValidateOrExit,
+} from '../utils/promptTools';
 import { listToBullets } from '../utils/utils';
 
-export const exportJson: Command = {
-    name: 'export-json',
+export const exportCollection: Command = {
+    name: 'export-collection',
     description: 'Export a collection as JSON',
     arguments: [
         {
@@ -45,17 +48,20 @@ export const exportJson: Command = {
             info: "Use this option instead of 'collections' export all collections in the project",
         },
     ],
-    action: exportJsonAction,
+    action: exportCollectionAction,
 };
 
-type exportJsonOptions = {
+type exportCollectionOptions = {
     outputFile?: string;
     serviceAccountPath?: string;
     overwrite: boolean;
     allCollections: boolean;
 };
 
-async function exportJsonAction(collections: string[], options?: exportJsonOptions): Promise<void> {
+async function exportCollectionAction(
+    collections: string[],
+    options?: exportCollectionOptions
+): Promise<void> {
     const serviceAccount = options?.serviceAccountPath
         ? await validateAndParseServiceAccountPath(options.serviceAccountPath)
         : await getServiceAccountWithConfigOrUserInput();
@@ -70,22 +76,11 @@ async function exportJsonAction(collections: string[], options?: exportJsonOptio
         serviceAccount.project_id
     );
 
-    const format = (date: Date) =>
-        `${date.getSeconds()}${date.getMinutes()}${date.getHours()}${date.getDay()}${date.getMonth()}${date.getFullYear()}`;
-    let filename = options?.outputFile ?? `firestore_export-${format(new Date())}.json`;
-    if (
-        fs.existsSync(filename) &&
-        !options?.overwrite &&
-        !(await promptBinaryQuestion(
-            `File already exists: ${filename}.\nWould you like to overwrite it ?`
-        ))
-    ) {
-        let i = 1;
-        while (fs.existsSync(`${filename}-${i}`)) {
-            ++i;
-        }
-        filename = `${filename}-${i}`;
-    }
+    const filename = await getFilenameWithOverwriteValidation(
+        options?.outputFile,
+        options?.overwrite,
+        'firestore_export'
+    );
 
     await promptValidateOrExit(
         `Are you sure you want to export the content of the collections${chalk.whiteBright(

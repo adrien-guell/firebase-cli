@@ -1,14 +1,25 @@
 import { program } from 'commander';
-import { importJson } from './commands/importJson';
+import { importCollection } from './commands/importCollection';
 import { Option } from './types/Option';
 import { Argument } from './types/Argument';
-import { copyCollections } from './commands/copyCollections';
+import { copyCollection } from './commands/copyCollection';
 import { deleteCollections } from './commands/deleteCollection';
 import { config } from './commands/config';
 import { blacklist } from './commands/blacklist';
-import { exportJson } from './commands/exportJson';
+import { exportCollection } from './commands/exportCollection';
+import { importRemoteConfig } from './commands/importRemoteConfig';
+import { exportRemoteConfig } from './commands/exportRemoteConfig';
 
-const commands = [importJson, exportJson, copyCollections, deleteCollections, config, blacklist];
+const commands = [
+    importCollection,
+    exportCollection,
+    copyCollection,
+    deleteCollections,
+    config,
+    blacklist,
+    importRemoteConfig,
+    exportRemoteConfig,
+];
 
 program.name('firebase-cli');
 
