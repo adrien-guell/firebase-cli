@@ -7,6 +7,7 @@ const configPath = '../config.json';
 
 /**
  * Get the configuration file as an object.
+ * @return The local config in a Config object.
  */
 function getConfig(): Config {
     if (!fs.existsSync(configPath)) fs.writeFileSync(configPath, JSON.stringify({ blacklist: [] }));
@@ -27,6 +28,7 @@ function saveConfig(config: Config) {
 
 /**
  * Get the service account path saved in the config.json.
+ * @return Either a service account path or undefined if none can be found in the local config.
  */
 export function getServiceAccountPath(): string | undefined {
     const config = getConfig();
@@ -70,6 +72,7 @@ export function removeFromBlacklist(projectIds: string[], config?: Config) {
 
 /**
  * Get the blacklist from config.json.
+ * @return The list of blacklisted projects in the local config.
  */
 export function getBlacklist(): string[] {
     const config = getConfig();

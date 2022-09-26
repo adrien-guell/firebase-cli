@@ -8,7 +8,7 @@ import * as fs from 'fs';
 import * as chalk from 'chalk';
 import { exportJsonFromFirestore, validateCollectionList } from '../utils/firestoreTools';
 import { logSuccess, promptBinaryQuestion, promptValidateOrExit } from '../utils/promptTools';
-import { listToBullets } from '../utils/utils';
+import { formatDate, listToBullets } from '../utils/utils';
 
 export const exportJson: Command = {
     name: 'export-json',
@@ -70,9 +70,7 @@ async function exportJsonAction(collections: string[], options?: exportJsonOptio
         serviceAccount.project_id
     );
 
-    const format = (date: Date) =>
-        `${date.getSeconds()}${date.getMinutes()}${date.getHours()}${date.getDay()}${date.getMonth()}${date.getFullYear()}`;
-    let filename = options?.outputFile ?? `firestore_export-${format(new Date())}.json`;
+    let filename = options?.outputFile ?? `firestore_export-${formatDate(new Date())}.json`;
     if (
         fs.existsSync(filename) &&
         !options?.overwrite &&

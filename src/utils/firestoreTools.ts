@@ -49,7 +49,7 @@ export async function collectionsExists(db: Firestore, collections: string[]): P
 /**
  * Check the validity of given collections, ask the user to choose one or more if no collection given.
  * If allCollections is true and no collection is given, all the collections of the project will be selected.
- * Returns a list of validated collections.
+ * @return A list of validated collections.
  * @param { Firestore } db firestore instance.
  * @param { boolean } allCollections select all collections of the project.
  * @param { string[] } collectionNames list of the names of the selected collections.

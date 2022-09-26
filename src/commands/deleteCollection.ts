@@ -6,9 +6,7 @@ import {
 } from '../utils/serviceAccountTools';
 import { deleteCollectionsFromFirestore, validateCollectionList } from '../utils/firestoreTools';
 import * as chalk from 'chalk';
-import * as inquirer from 'inquirer';
-import { Presets, SingleBar } from 'cli-progress';
-import { logSuccess, promptCustomValidateOrExit, promptValidateOrExit } from '../utils/promptTools';
+import { logSuccess, promptCustomValidateOrExit } from '../utils/promptTools';
 import { listToBullets } from '../utils/utils';
 
 export const deleteCollections: Command = {

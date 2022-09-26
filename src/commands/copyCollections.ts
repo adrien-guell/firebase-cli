@@ -4,9 +4,7 @@ import {
     getServiceAccountWithConfigOrUserInput,
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
-import * as inquirer from 'inquirer';
 import { copyCollectionAcrossProjects, validateCollectionList } from '../utils/firestoreTools';
-import { Presets, SingleBar } from 'cli-progress';
 import * as chalk from 'chalk';
 import { logSuccess, promptValidateOrExit } from '../utils/promptTools';
 import { listToBullets } from '../utils/utils';

@@ -2,6 +2,25 @@
 
 A CLI to make advenced operations on firebase. Use `firebase-cli help` to see documentation. 
 
+## Installation
+
+```shell
+npm i firebase-utils-cli
+```
+
+#Commands
+
+## Currently implemented operations
+With this cli, you can :
+- **copy** collections from a firebase project to another
+- **delete** entire collections from a firebase project
+- **import** collections to a firebase project from a local JSON file
+- **export** collections to a local JSON file from a firebase project
+
+>You can set a default service account path that will be used if you do not specify one.
+
+>You can also blacklist projects with their id to avoid unwanted modifications on a project.
+
 ## Import / Export collections
 
 The JSON file must follow the following template :
@@ -25,6 +44,8 @@ The JSON file must follow the following template :
     }
 }
 ```
+
+# Implementing more features
 
 ## Adding a command
 
@@ -91,8 +112,12 @@ Finally, add the command to the list of commands in the index.ts file :
 const commands = [myCommand, command1, command2];
 ```
 
-## Deploy
+> Feel free to look up the already implemented commands to get more examples.
 
+## Deploying
+
+To deploy the application on npm, run the following commands. 
+> Currently, only the original author can do so
 ```shell
 tsc
 npm publish

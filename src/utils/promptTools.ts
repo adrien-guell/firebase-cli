@@ -18,6 +18,12 @@ export function exitProcess(code: number = 0, message: string = 'Operation cance
 }
 
 /** Prompt **/
+
+/**
+ * Prompt a message and wait for user validation or cancellation. Expected inputs from user are yes or no.
+ * Nothing is returned, the process either continues or is exited.
+ * @param { string } message message to prompt.
+ */
 export async function promptValidateOrExit(message: string) {
     await inquirer
         .prompt({
@@ -30,6 +36,16 @@ export async function promptValidateOrExit(message: string) {
         });
 }
 
+/**
+ * Prompt a message and wait for user validation or cancellation.
+ * Expected inputs from user are continueInput or cancelInput.
+ * hintMessage is prompted when the user input does not match with the expected ones.
+ * Nothing is returned, the process either continues or is exited.
+ * @param { string } message message to prompt.
+ * @param { string } continueInput expected input to continue process.
+ * @param { string } cancelInput expected input to cancel process.
+ * @param { string | undefined } hintMessage message prompted if the user does not type an expected input.
+ */
 export async function promptCustomValidateOrExit(
     message: string,
     continueInput: string,
@@ -49,6 +65,12 @@ export async function promptCustomValidateOrExit(
         });
 }
 
+/**
+ * Prompt a list within witch the user can select one element.
+ * @return The element selected.
+ * @param { string[] } choices list of the choices to select from.
+ * @param { string } message message prompted to the user.
+ */
 export async function promptListSelection(choices: string[], message: string): Promise<string> {
     return inquirer
         .prompt({
@@ -60,6 +82,12 @@ export async function promptListSelection(choices: string[], message: string): P
         .then((answer) => answer.element);
 }
 
+/**
+ * Prompt a list within witch the user can select one or more elements.
+ * @return All the selected elements.
+ * @param { string[] } choices list of the choices to select from.
+ * @param { string } message message prompted to the user.
+ */
 export async function promptCheckbox(choices: string[], message: string): Promise<string[]> {
     return inquirer
         .prompt({
@@ -71,6 +99,12 @@ export async function promptCheckbox(choices: string[], message: string): Promis
         .then((answer) => answer.list);
 }
 
+/**
+ * Prompt a question to the user and wait for an input. The input can be validated with the validation function.
+ * @return The user input.
+ * @param { string } message message prompted to the user.
+ * @param { (string) => (string | boolean) | undefined } validate function that validates user input.
+ */
 export async function promptOpenQuestion(
     message: string,
     validate: (input: string) => string | boolean = () => true
@@ -85,6 +119,12 @@ export async function promptOpenQuestion(
         .then((answer) => answer.input);
 }
 
+/**
+ * Prompt a question to the user and wait for a binary response. The input can be validated with the validation function.
+ * @return The result of the validate function applied on the user input.
+ * @param { string } message message prompted to the user.
+ * @param { (string) => (string | boolean) | undefined } validate function that validates user input.
+ */
 export async function promptBinaryQuestion(
     message: string,
     validate: (input: string) => string | boolean = () => true

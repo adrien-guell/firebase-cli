@@ -1,18 +1,15 @@
 import * as fs from 'fs';
-import * as inquirer from 'inquirer';
 import * as admin from 'firebase-admin';
 import * as path from 'path';
 import { parseFile } from './utils';
 import { ServiceAccount, serviceAccountDecoder } from '../types/ServiceAccount';
 import cert = admin.credential.cert;
 import { getBlacklist, getServiceAccountPath, setDefaultServiceAccountPath } from './configTools';
-import * as chalk from 'chalk';
 import { logError, promptBinaryQuestion, promptOpenQuestion } from './promptTools';
 
 /**
  * Check if the given file path is a valid service account file.
- * Returns true if valid.
- * Returns an error message if invalid.
+ * @return Either true if valid or an error message if invalid.
  * @param { string | undefined } serviceAccountPath file path to check.
  * @param { boolean } printError true if you want to print the errors.
  */
@@ -48,7 +45,7 @@ export function isValidServiceAccountPath(
 
 /**
  * Get a service account file path with the user input and a path validation.
- * Returns a valid service account file path.
+ * @return A valid service account file path.
  * @param { string | undefined } customMessage message prompted to the user. If not given, a default one will be prompted.
  */
 export async function getServiceAccountPathWithUserInput(customMessage?: string): Promise<string> {
@@ -60,7 +57,7 @@ export async function getServiceAccountPathWithUserInput(customMessage?: string)
 
 /**
  * Get a service account object with user input and a projectId validation from user.
- * Returns a valid service account object.
+ * @return A valid service account object.
  * @param { string | undefined } customMessage message prompted to the user. If not given, a default one will be prompted.
  */
 export async function getServiceAccountWithUserInput(
@@ -78,8 +75,8 @@ export async function getServiceAccountWithUserInput(
 
 /**
  * Check the validity and parse a service account file path. If not valid, the user will be asked to input a new path.
- * Returns a valid service account object.
- * @param { string } serviceAccountPath path of the service account file to check and parse
+ * @return A valid service account object.
+ * @param { string } serviceAccountPath path of the service account file to check and parse.
  * @param { string| undefined } customMessage message prompted to the user. If not given, a default one will be prompted.
  */
 export async function validateAndParseServiceAccountPath(
@@ -93,7 +90,7 @@ export async function validateAndParseServiceAccountPath(
 
 /**
  * Get a service account object using config file or a user input if no config. The user input is saved in the config file.
- * Returns a valid service account object.
+ * @return A valid service account object.
  * @param { string| undefined } customMessage message prompted to the user. If not given, a default one will be prompted.
  */
 export async function getServiceAccountWithConfigOrUserInput(
@@ -109,9 +106,9 @@ export async function getServiceAccountWithConfigOrUserInput(
 
 /**
  * Get the firebase app corresponding to the given service account object.
- * Returns a firebase app object.
+ * @return A firebase app object.
  * @param { ServiceAccount } serviceAccount a valid service account object.
- * @param { string | undefined } appName the name of the app (used only to init multiple apps)
+ * @param { string | undefined } appName the name of the app (used only to init multiple apps).
  */
 export async function getFirebaseApp(serviceAccount: ServiceAccount, appName?: string) {
     return admin.initializeApp(

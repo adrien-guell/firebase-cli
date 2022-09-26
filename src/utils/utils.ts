@@ -14,3 +14,6 @@ export const listToText = (list: any[]): string =>
         .join('');
 
 export const listToBullets = (list: any[]): string => list.map((id) => `\n• ${id}`).join('');
+
+export const formatDate = (date: Date) =>
+    `${date.getSeconds()}${date.getMinutes()}${date.getHours()}${date.getDay()}${date.getMonth()}${date.getFullYear()}`;
