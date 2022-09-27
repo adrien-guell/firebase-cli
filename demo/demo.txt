@@ -5,17 +5,17 @@ firebase-cli copy-collection service_accounts/friendlychat.json -c livescores pr
 Predifine collecions error
 firebase-cli copy-collection service_accounts/friendlychat.json -c notacollection
 Scripted with all collections
-firebase-cli copy-collection service_accouts/friendlychat.json -s service_accouts/primeflix.json -a -f
+firebase-cli copy-collection service_accounts/friendlychat.json -s service_accounts/primeflix.json -a -f
 
 Config
-firebase-cli config -s service_accouts/friendlychat.json
+firebase-cli config -s service_accounts/friendlychat.json
 
 Full user
 firebase-cli export-collection
 Predifined collections and filename
 firebase-cli export-collection genres movies -o collections.json
 Scripted
-firebase-cli export-collection -s service_accouts/friendlychat.json -o collections.json -a -f -w
+firebase-cli export-collection -s service_accounts/friendlychat.json -o collections.json -a -f -w
 
 Full user
 firebase-cli delete-collection
@@ -25,3 +25,5 @@ Full User
 firebase-cli import-collection collections.json
 
 firebase-cli export-remote-config -o remote-config.json
+
+firebase-cli import-remote-config remote-config.json

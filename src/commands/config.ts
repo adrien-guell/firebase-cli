@@ -27,12 +27,10 @@ type configOptions = {
 
 async function configAction(options?: configOptions): Promise<void> {
     if (options?.defaultServiceAccountPath) {
-        let serviceAccountPath = (await isValidServiceAccountPath(
-            options?.defaultServiceAccountPath,
-            true
-        ))
-            ? options!.defaultServiceAccountPath!
-            : await getServiceAccountPathWithUserInput();
+        let serviceAccountPath =
+            (await isValidServiceAccountPath(options?.defaultServiceAccountPath, true)) == true
+                ? options.defaultServiceAccountPath
+                : await getServiceAccountPathWithUserInput();
 
         setDefaultServiceAccountPath(serviceAccountPath);
         logSuccess(`Succesfully setted ${serviceAccountPath} as default service account path.`);
