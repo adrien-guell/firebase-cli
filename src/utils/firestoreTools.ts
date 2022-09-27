@@ -1,4 +1,4 @@
-import { firestore } from 'firebase-admin';
+import { app, firestore } from 'firebase-admin';
 import Firestore = firestore.Firestore;
 import { parseFile } from './utils';
 import {
@@ -10,6 +10,7 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 import { writeFileSync } from 'fs';
+import App = app.App;
 
 /**
  * Ask user to choose one collection of the project.
@@ -69,6 +70,8 @@ export async function validateCollectionList(
     logError(`One or more given collection cannot be found in the ${projectId} project`);
     return selectManyBetweenExistingCollections(db);
 }
+
+/** Firestore **/
 
 /**
  * Import a JSON file to firestore.
@@ -168,4 +171,19 @@ export async function copyCollectionAcrossProjects(
             }
         );
     }
+}
+
+/** Remote Config **/
+export async function importJsonToRemoteConfig(jsonPath: string, app: App) {
+    const config = parseFile(jsonPath);
+    const remoteConfig = app.remoteConfig();
+    remoteConfig.getTemplate().then();
+}
+
+export async function exportJsonFromRemoteConfig(jsonPath: string, app: App) {
+    const remoteConfig = app.remoteConfig();
+    await remoteConfig.getTemplate().then((template) => {
+        const templateString = JSON.stringify(template);
+        fs.writeFileSync(jsonPath, templateString);
+    });
 }

@@ -1,7 +1,8 @@
 import * as chalk from 'chalk';
 import * as inquirer from 'inquirer';
 import { Presets, SingleBar } from 'cli-progress';
-import { isValidServiceAccountPath } from './serviceAccountTools';
+import { format } from './utils';
+import * as fs from 'fs';
 
 /** Log **/
 export function logError(message: string) {
@@ -137,6 +138,28 @@ export async function promptBinaryQuestion(
             validate: validate,
         })
         .then((answer) => answer.isValid);
+}
+
+export async function getFilenameWithOverwriteValidation(
+    path: string | undefined,
+    overwrite: boolean | undefined,
+    defaultPrefix: string = ''
+) {
+    let filename = path ?? `${defaultPrefix}-${format(new Date())}.json`;
+    if (
+        fs.existsSync(filename) &&
+        !overwrite &&
+        !(await promptBinaryQuestion(
+            `File already exists: ${filename}.\nWould you like to overwrite it ?`
+        ))
+    ) {
+        let i = 1;
+        while (fs.existsSync(`${filename}-${i}`)) {
+            ++i;
+        }
+        filename = `${filename}-${i}`;
+    }
+    return filename;
 }
 
 /** Progress Bar **/

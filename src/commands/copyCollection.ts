@@ -9,8 +9,8 @@ import * as chalk from 'chalk';
 import { logSuccess, promptValidateOrExit } from '../utils/promptTools';
 import { listToBullets } from '../utils/utils';
 
-export const copyCollections: Command = {
-    name: 'copy-collections',
+export const copyCollection: Command = {
+    name: 'copy-collection',
     description: 'Copy collection(s) from a source project to a destination project',
     arguments: [
         {
@@ -43,19 +43,19 @@ export const copyCollections: Command = {
             info: 'Forces the operation to be executed without user validation',
         },
     ],
-    action: exportJsonAction,
+    action: copyCollectionAction,
 };
 
-type copyCollectionsOptions = {
+type copyCollectionOptions = {
     sourceServiceAccountPath?: string;
     collections?: string[];
     allCollections: boolean;
     force: boolean;
 };
 
-async function exportJsonAction(
+async function copyCollectionAction(
     destinationServiceAccountPath: string,
-    options?: copyCollectionsOptions
+    options?: copyCollectionOptions
 ): Promise<void> {
     const sourceServicePrompt =
         'What is the path to the firebase service account of the source project ?';

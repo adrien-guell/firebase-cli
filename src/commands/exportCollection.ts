@@ -4,14 +4,19 @@ import {
     getServiceAccountWithConfigOrUserInput,
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
-import * as fs from 'fs';
 import * as chalk from 'chalk';
 import { exportJsonFromFirestore, validateCollectionList } from '../utils/firestoreTools';
+import {
+    getFilenameWithOverwriteValidation,
+    logSuccess,
+    promptValidateOrExit,
+} from '../utils/promptTools';
+import { listToBullets } from '../utils/utils';
 import { logSuccess, promptBinaryQuestion, promptValidateOrExit } from '../utils/promptTools';
 import { formatDate, listToBullets } from '../utils/utils';
 
-export const exportJson: Command = {
-    name: 'export-json',
+export const exportCollection: Command = {
+    name: 'export-collection',
     description: 'Export a collection as JSON',
     arguments: [
         {
@@ -50,10 +55,10 @@ export const exportJson: Command = {
             info: 'Forces the operation to be executed without user validation',
         },
     ],
-    action: exportJsonAction,
+    action: exportCollectionAction,
 };
 
-type exportJsonOptions = {
+type exportCollectionOptions = {
     outputFile?: string;
     serviceAccountPath?: string;
     overwrite: boolean;
@@ -61,7 +66,10 @@ type exportJsonOptions = {
     force: boolean;
 };
 
-async function exportJsonAction(collections: string[], options?: exportJsonOptions): Promise<void> {
+async function exportCollectionAction(
+    collections: string[],
+    options?: exportCollectionOptions
+): Promise<void> {
     const serviceAccount = options?.serviceAccountPath
         ? await validateAndParseServiceAccountPath(options.serviceAccountPath)
         : await getServiceAccountWithConfigOrUserInput();
@@ -90,6 +98,11 @@ async function exportJsonAction(collections: string[], options?: exportJsonOptio
         }
         filename = `${filename}-${i}`;
     }
+    const filename = await getFilenameWithOverwriteValidation(
+        options?.outputFile,
+        options?.overwrite,
+        'firestore_export'
+    );
 
     if (options?.force != true) {
         await promptValidateOrExit(
