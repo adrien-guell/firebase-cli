@@ -39,7 +39,7 @@ export const exportCollection: Command = {
         },
         {
             name: 'overwrite',
-            short: 'f',
+            short: 'w',
             info: 'Force overwrite output file if already exists',
         },
         {

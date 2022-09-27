@@ -1,6 +1,0 @@
-copy collection
-
-firebase-cli copy-collection
-=> missing argument
-
-firebase-cli copy-collection

@@ -10,7 +10,7 @@ import { logSuccess, promptCustomValidateOrExit } from '../utils/promptTools';
 import { listToBullets } from '../utils/utils';
 
 export const deleteCollections: Command = {
-    name: 'delete-collections',
+    name: 'delete-collection',
     description: 'Delete collection(s) inside a defined project',
     arguments: [],
     options: [
