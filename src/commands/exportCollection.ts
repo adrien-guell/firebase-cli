@@ -9,10 +9,9 @@ import { exportJsonFromFirestore, validateCollectionList } from '../utils/firest
 import {
     getFilenameWithOverwriteValidation,
     logSuccess,
-    promptBinaryQuestion,
     promptValidateOrExit,
 } from '../utils/promptTools';
-import { formatDate, listToBullets } from '../utils/utils';
+import { listToBullets } from '../utils/utils';
 
 export const exportCollection: Command = {
     name: 'export-collection',

@@ -25,12 +25,18 @@ export const importRemoteConfig: Command = {
             short: 's',
             info: 'Path to the service account used to access the project',
         },
+        {
+            name: 'force',
+            short: 'f',
+            info: 'Forces the operation to be executed without user validation',
+        },
     ],
     action: importRemoteConfigAction,
 };
 
 type importRemoteConfigOptions = {
     serviceAccountPath?: string;
+    force: boolean;
 };
 
 async function importRemoteConfigAction(
@@ -45,11 +51,15 @@ async function importRemoteConfigAction(
 
     if (!fs.existsSync(jsonPath)) exitProcess(1, `File not found : ${jsonPath}`);
 
-    await promptValidateOrExit(
-        `Are you sure you want to import the content of the file ${chalk.whiteBright(
-            jsonPath
-        )} to the remote config of the project '${chalk.whiteBright(serviceAccount.project_id)}' ?`
-    );
+    if (options?.force != true) {
+        await promptValidateOrExit(
+            `Are you sure you want to import the content of the file ${chalk.whiteBright(
+                jsonPath
+            )} to the remote config of the project '${chalk.whiteBright(
+                serviceAccount.project_id
+            )}' ?`
+        );
+    }
 
     await importJsonToRemoteConfig(jsonPath, app);
     logSuccess(

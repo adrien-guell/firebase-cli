@@ -31,8 +31,13 @@ export const exportRemoteConfig: Command = {
         },
         {
             name: 'overwrite',
+            short: 'w',
+            info: 'Force overwrite the output file if it already exists',
+        },
+        {
+            name: 'force',
             short: 'f',
-            info: 'Force overwrite output file if already exists',
+            info: 'Forces the operation to be executed without user validation',
         },
     ],
     action: exportRemoteConfigAction,
@@ -42,12 +47,10 @@ type exportRemoteConfigOptions = {
     outputFile?: string;
     serviceAccountPath?: string;
     overwrite: boolean;
+    force: boolean;
 };
 
-async function exportRemoteConfigAction(
-    collections: string[],
-    options?: exportRemoteConfigOptions
-): Promise<void> {
+async function exportRemoteConfigAction(options?: exportRemoteConfigOptions): Promise<void> {
     const serviceAccount = options?.serviceAccountPath
         ? await validateAndParseServiceAccountPath(options.serviceAccountPath)
         : await getServiceAccountWithConfigOrUserInput();
@@ -60,11 +63,13 @@ async function exportRemoteConfigAction(
         'remote_config'
     );
 
-    await promptValidateOrExit(
-        `Are you sure you want to export the remote config from the project '${chalk.whiteBright(
-            serviceAccount.project_id
-        )}' to the file '${chalk.whiteBright(filename)}' ?`
-    );
+    if (options?.force != true) {
+        await promptValidateOrExit(
+            `Are you sure you want to export the remote config from the project '${chalk.whiteBright(
+                serviceAccount.project_id
+            )}' to the file '${chalk.whiteBright(filename)}' ?`
+        );
+    }
 
     await exportJsonFromRemoteConfig(filename, app);
     logSuccess(

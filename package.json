@@ -6,7 +6,9 @@
   "types": "node",
   "prepublish": "tsc",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "start": "npm run build && node lib/index.js",
+    "export": "npm run build && node lib/index.js export-remote-config -s C:\\Code\\FDJ\\firebase-cli\\service_accounts\\friendlychat.json -o my-config.json -f -w"
   },
   "engines": {
     "node": "16"
@@ -27,7 +29,7 @@
     "typescript-json-decoder": "^1.0.10"
   },
   "name": "firebase-utils-cli",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "CLI to perform complex firebase operations",
   "keywords": [
     "cli",

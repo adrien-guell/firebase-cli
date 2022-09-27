@@ -10,12 +10,14 @@ npm i firebase-utils-cli
 
 #Commands
 
-## Currently implemented operations
+## Features
 With this cli, you can :
-- **copy** collections from a firebase project to another
-- **delete** entire collections from a firebase project
-- **import** collections to a firebase project from a local JSON file
-- **export** collections to a local JSON file from a firebase project
+- **copy collections** from a firebase project to another
+- **delete collections** from a firebase project
+- **import collections** to a firebase project from a local JSON file
+- **export collections** to a local JSON file from a firebase project
+- **import a remote config** to a firebase project from a local JSON file
+- **export a remote config** to a local JSON file from a firebase project
 
 >You can set a default service account path that will be used if you do not specify one.
 

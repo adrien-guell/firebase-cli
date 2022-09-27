@@ -11,6 +11,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { writeFileSync } from 'fs';
 import App = app.App;
+import { RemoteConfigTemplate } from 'firebase-admin/remote-config';
 
 /**
  * Ask user to choose one collection of the project.
@@ -174,16 +175,28 @@ export async function copyCollectionAcrossProjects(
 }
 
 /** Remote Config **/
-export async function importJsonToRemoteConfig(jsonPath: string, app: App) {
-    const config = parseFile(jsonPath);
-    const remoteConfig = app.remoteConfig();
-    remoteConfig.getTemplate().then();
+export async function importJsonToRemoteConfig(
+    jsonPath: string,
+    app: App
+): Promise<string | boolean> {
+    try {
+        const template: RemoteConfigTemplate = parseFile(jsonPath);
+        const remoteConfig = app.remoteConfig();
+        const validatedTemplate = await remoteConfig.validateTemplate(template);
+        await remoteConfig.publishTemplate(validatedTemplate);
+        return true;
+    } catch (error: any) {
+        return error;
+    }
 }
 
 export async function exportJsonFromRemoteConfig(jsonPath: string, app: App) {
     const remoteConfig = app.remoteConfig();
-    await remoteConfig.getTemplate().then((template) => {
-        const templateString = JSON.stringify(template);
-        fs.writeFileSync(jsonPath, templateString);
-    });
+    await remoteConfig
+        .getTemplate()
+        .then((template) => {
+            const templateString = JSON.stringify(template);
+            fs.writeFileSync(jsonPath, templateString);
+        })
+        .catch(console.error);
 }
