@@ -1,7 +1,7 @@
 import * as chalk from 'chalk';
 import * as inquirer from 'inquirer';
 import { Presets, SingleBar } from 'cli-progress';
-import { format } from './utils';
+import { formatDate } from './utils';
 import * as fs from 'fs';
 
 /** Log **/
@@ -140,12 +140,19 @@ export async function promptBinaryQuestion(
         .then((answer) => answer.isValid);
 }
 
+/**
+ * Generate a filename if the  `path` already exists and the user doesn't want to overwrite it.
+ * @return { string } Generated filename.
+ * @param { string | undefined } path path with filename to check.
+ * @param { boolean | undefined } overwrite force to overwrite the file.
+ * @param { string | undefined } defaultPrefix filename prefix.
+ */
 export async function getFilenameWithOverwriteValidation(
     path: string | undefined,
     overwrite: boolean | undefined,
     defaultPrefix: string = ''
 ) {
-    let filename = path ?? `${defaultPrefix}-${format(new Date())}.json`;
+    let filename = path ?? `${defaultPrefix}-${formatDate(new Date())}.json`;
     if (
         fs.existsSync(filename) &&
         !overwrite &&

@@ -9,10 +9,9 @@ import { exportJsonFromFirestore, validateCollectionList } from '../utils/firest
 import {
     getFilenameWithOverwriteValidation,
     logSuccess,
+    promptBinaryQuestion,
     promptValidateOrExit,
 } from '../utils/promptTools';
-import { listToBullets } from '../utils/utils';
-import { logSuccess, promptBinaryQuestion, promptValidateOrExit } from '../utils/promptTools';
 import { formatDate, listToBullets } from '../utils/utils';
 
 export const exportCollection: Command = {
@@ -84,20 +83,6 @@ async function exportCollectionAction(
         serviceAccount.project_id
     );
 
-    let filename = options?.outputFile ?? `firestore_export-${formatDate(new Date())}.json`;
-    if (
-        fs.existsSync(filename) &&
-        !options?.overwrite &&
-        !(await promptBinaryQuestion(
-            `File already exists: ${filename}.\nWould you like to overwrite it ?`
-        ))
-    ) {
-        let i = 1;
-        while (fs.existsSync(`${filename}-${i}`)) {
-            ++i;
-        }
-        filename = `${filename}-${i}`;
-    }
     const filename = await getFilenameWithOverwriteValidation(
         options?.outputFile,
         options?.overwrite,
