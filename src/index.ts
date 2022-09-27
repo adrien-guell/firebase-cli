@@ -17,10 +17,10 @@ const commands = [
     exportCollection,
     copyCollection,
     deleteCollections,
-    config,
-    blacklist,
     importRemoteConfig,
     exportRemoteConfig,
+    config,
+    blacklist,
 ];
 
 program.name('firebase-cli');

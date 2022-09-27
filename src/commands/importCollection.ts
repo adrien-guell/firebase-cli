@@ -11,7 +11,7 @@ import { importJsonToFirestore } from '../utils/firestoreTools';
 
 export const importCollection: Command = {
     name: 'import-collection',
-    description: 'Import a collection as JSON',
+    description: 'Import a collection from a local JSON',
     arguments: [
         {
             name: 'jsonPath',

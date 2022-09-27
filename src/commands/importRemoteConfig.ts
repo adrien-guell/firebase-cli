@@ -11,7 +11,7 @@ import { importJsonToRemoteConfig } from '../utils/firestoreTools';
 
 export const importRemoteConfig: Command = {
     name: 'import-remote-config',
-    description: 'Import remote config using a JSON',
+    description: 'Import remote config from a local JSON',
     arguments: [
         {
             name: 'jsonPath',
