@@ -53,7 +53,7 @@ type copyCollectionOptions = {
     force: boolean;
 };
 
-async function copyCollectionAction(
+export async function copyCollectionAction(
     destinationServiceAccountPath: string,
     options?: copyCollectionOptions
 ): Promise<void> {
@@ -80,7 +80,6 @@ async function copyCollectionAction(
         options?.collections,
         sourceServiceAccount.project_id
     );
-
 
     if (options?.force != true) {
         await promptValidateOrExit(
