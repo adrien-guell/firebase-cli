@@ -21,7 +21,7 @@ With this cli, you can :
 
 >You can set a default service account path that will be used if you do not specify one.
 
->You can also blacklist projects with their id to avoid unwanted modifications on a project.
+>You can also blocklist projects with their id to avoid unwanted modifications on a project.
 
 ## Import / Export collections
 
@@ -77,7 +77,7 @@ export const myCommand: Command = {
         {
             name: 'my-second-option-name',
             short: 'o', //short flag for the option
-            argName: 'mySecondOptionArgumentName', // implise that the option needs an argument
+            argName: 'mySecondOptionArgumentName', // implies that the option needs an argument
             info: 'what my option is used for',
         },
         { 

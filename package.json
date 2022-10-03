@@ -28,6 +28,7 @@
     "cli-progress": "^3.11.2",
     "commander": "^9.4.0",
     "firebase-admin": "^11.0.1",
+    "firebase-utils-cli": "^1.0.6",
     "inquirer": "^8.0.0",
     "typescript-json-decoder": "^1.0.10"
   },

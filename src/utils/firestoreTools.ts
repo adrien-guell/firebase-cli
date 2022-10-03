@@ -3,6 +3,7 @@ import Firestore = firestore.Firestore;
 import { parseFile } from './utils';
 import {
     executeOperationWithProgressBar,
+    exitProcess,
     logError,
     promptCheckbox,
     promptListSelection,
@@ -75,12 +76,43 @@ export async function validateCollectionList(
 /** Firestore **/
 
 /**
- * Import a JSON file to firestore.
+ * Import a JSON file to firestore using.
  * @param { string } jsonPath path to the json to import.
  * @param { Firestore } db firestore instance.
  */
 export async function importJsonToFirestore(jsonPath: string, db: Firestore) {
-    // TODO check json file integrity
+    const collections: { [collectionName: string]: { [documentName: string]: any } | undefined } =
+        parseFile(jsonPath);
+
+    for (const collectionName in collections) {
+        const documents = collections[collectionName];
+        if (!documents) continue;
+
+        await executeOperationWithProgressBar(
+            Object.keys(documents).length,
+            `Importing ${collectionName}`,
+            async (increment) => {
+                const operations = [];
+                for (const documentName in documents) {
+                    operations.push(
+                        db
+                        .collection(collectionName)
+                        .doc(documentName)
+                        .set(documents[documentName]).then(increment)
+                    );
+                }
+                await Promise.all(operations);
+            }
+        );
+    }
+}
+
+/**
+ * Import a JSON file to firestore using the batch api.
+ * @param { string } jsonPath path to the json to import.
+ * @param { Firestore } db firestore instance.
+ */
+export async function importJsonToFirestoreWithBatch(jsonPath: string, db: Firestore) {
     const collections: { [collectionName: string]: { [documentName: string]: any } | undefined } =
         parseFile(jsonPath);
 
@@ -112,14 +144,20 @@ export async function exportJsonFromFirestore(
         async (increment) => {
             fs.mkdirSync(path.dirname(jsonPath), { recursive: true });
             const jsonData: { [collectionName: string]: { [documentName: string]: any } } = {};
-            for (const collectionName of collectionsName) {
-                const collection = await db.collection(collectionName).get();
-                jsonData[collectionName] = {};
-                collection.docs.forEach((doc) => {
-                    jsonData[collectionName][doc.id] = doc.data();
-                });
-                increment();
-            }
+            await Promise.all(
+                collectionsName.map((collectionName) => {
+                    return db
+                        .collection(collectionName)
+                        .get()
+                        .then((collection) => {
+                            jsonData[collectionName] = {};
+                            collection.docs.forEach((doc) => {
+                                jsonData[collectionName][doc.id] = doc.data();
+                            });
+                            increment();
+                        });
+                })
+            );
             writeFileSync(jsonPath, JSON.stringify(jsonData));
         }
     );

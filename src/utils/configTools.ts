@@ -10,7 +10,7 @@ const configPath = '../config.json';
  * @return The local config in a Config object.
  */
 function getConfig(): Config {
-    if (!fs.existsSync(configPath)) fs.writeFileSync(configPath, JSON.stringify({ blacklist: [] }));
+    if (!fs.existsSync(configPath)) fs.writeFileSync(configPath, JSON.stringify({ blocklist: [] }));
     try {
         return parseFile(configPath, configDecoder);
     } catch (e) {
@@ -47,34 +47,34 @@ export function setDefaultServiceAccountPath(serviceAccountPath: string, config?
 }
 
 /**
- * Add projects to the blacklist in config.json.
- * @param { string[] } projectIds list of projects to add to the blacklist.
+ * Add projects to the blocklist in config.json.
+ * @param { string[] } projectIds list of projects to add to the blocklist.
  * @param { Config | undefined } config already instantiated config object.
  */
-export function addToBlacklist(projectIds: string[], config?: Config) {
+export function addToBlocklist(projectIds: string[], config?: Config) {
     if (!config) config = getConfig();
     for (const projectId of projectIds) {
-        if (!config.blacklist.includes(projectId)) config.blacklist.push(projectId);
+        if (!config.blocklist.includes(projectId)) config.blocklist.push(projectId);
     }
     saveConfig(config);
 }
 
 /**
- * Remove projects from the blacklist in config.json.
- * @param { string[] } projectIds list of projects to remove from the blacklist.
+ * Remove projects from the blocklist in config.json.
+ * @param { string[] } projectIds list of projects to remove from the blocklist.
  * @param { Config | undefined } config already instantiated config object.
  */
-export function removeFromBlacklist(projectIds: string[], config?: Config) {
+export function removeFromBlocklist(projectIds: string[], config?: Config) {
     if (!config) config = getConfig();
-    config.blacklist = config.blacklist.filter((projectId) => !projectIds.includes(projectId));
+    config.blocklist = config.blocklist.filter((projectId) => !projectIds.includes(projectId));
     saveConfig(config);
 }
 
 /**
- * Get the blacklist from config.json.
- * @return The list of blacklisted projects in the local config.
+ * Get the blocklist from config.json.
+ * @return The list of blocklisted projects in the local config.
  */
-export function getBlacklist(): string[] {
+export function getBlocklist(): string[] {
     const config = getConfig();
-    return config.blacklist;
+    return config.blocklist;
 }

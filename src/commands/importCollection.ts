@@ -7,7 +7,7 @@ import {
 import * as fs from 'fs';
 import * as chalk from 'chalk';
 import { exitProcess, logSuccess, promptValidateOrExit } from '../utils/promptTools';
-import { importJsonToFirestore } from '../utils/firestoreTools';
+import {importJsonToFirestore, importJsonToFirestoreWithBatch} from '../utils/firestoreTools';
 
 export const importCollection: Command = {
     name: 'import-collection',
@@ -26,6 +26,11 @@ export const importCollection: Command = {
             info: 'Path to the service account used to access the project',
         },
         {
+          name: 'batch',
+          short: 'b',
+          info: 'Use the batch API to push the collections faster (use for large collections)'
+        },
+        {
             name: 'force',
             short: 'f',
             info: 'Forces the operation to be executed without user validation',
@@ -37,6 +42,7 @@ export const importCollection: Command = {
 type importCollectionOptions = {
     serviceAccountPath?: string;
     force: boolean;
+    batch: boolean;
 };
 
 async function importCollectionAction(
@@ -60,6 +66,11 @@ async function importCollectionAction(
         );
     }
 
-    await importJsonToFirestore(jsonPath, db);
+    if (options?.batch) {
+        await importJsonToFirestoreWithBatch(jsonPath, db);
+    } else {
+        await importJsonToFirestore(jsonPath, db);
+    }
+
     logSuccess(`Successfully imported data from ${jsonPath} to ${serviceAccount.project_id}.`);
 }

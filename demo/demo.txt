@@ -13,7 +13,7 @@ firebase-cli config -s service_accounts/friendlychat.json
 Full user
 firebase-cli export-collection
 Predifined collections and filename
-firebase-cli export-collection genres movies -o collections.json
+firebase-cli export-collection genres -o collections.json
 Scripted
 firebase-cli export-collection -s service_accounts/friendlychat.json -o collections.json -a -f -w
 
@@ -25,5 +25,18 @@ Full User
 firebase-cli import-collection collections.json
 
 firebase-cli export-remote-config -o remote-config.json
+.
 
 firebase-cli import-remote-config remote-config.json
+
+* renomer blocklist en blocklist
+* parraleliser les appels firestore
+* checker batch option
+checker le -f en cas d'erreur
+checker liste vide quand on recup les collections
+ajouter le mois ou changer en timestamp
+ajouter un projet qui dit sur quel projet on est
+prettify json output (option)
+faire ressortir le nom du projet
+non ca degage on blocklist
+generateur de tests

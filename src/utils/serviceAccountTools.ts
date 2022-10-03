@@ -4,7 +4,7 @@ import * as path from 'path';
 import { parseFile } from './utils';
 import { ServiceAccount, serviceAccountDecoder } from '../types/ServiceAccount';
 import cert = admin.credential.cert;
-import { getBlacklist, getServiceAccountPath, setDefaultServiceAccountPath } from './configTools';
+import { getBlocklist, getServiceAccountPath, setDefaultServiceAccountPath } from './configTools';
 import { logError, promptBinaryQuestion, promptOpenQuestion } from './promptTools';
 
 /**
@@ -32,9 +32,9 @@ export function isValidServiceAccountPath(
 
     try {
         const serviceAccount = parseFile(serviceAccountPath, serviceAccountDecoder);
-        if (getBlacklist().includes(serviceAccount.project_id)) {
-            if (printError) logError(`The project '${serviceAccount.project_id}' is blacklisted`);
-            return `The project '${serviceAccount.project_id}' is blacklisted`;
+        if (getBlocklist().includes(serviceAccount.project_id)) {
+            if (printError) logError(`The project '${serviceAccount.project_id}' is blocklisted`);
+            return `The project '${serviceAccount.project_id}' is blocklisted`;
         }
         return true;
     } catch (_) {

@@ -7,7 +7,7 @@ import { Argument } from './types/Argument';
 import { copyCollection } from './commands/copyCollection';
 import { deleteCollections } from './commands/deleteCollection';
 import { config } from './commands/config';
-import { blacklist } from './commands/blacklist';
+import { blocklist } from './commands/blocklist';
 import { exportCollection } from './commands/exportCollection';
 import { importRemoteConfig } from './commands/importRemoteConfig';
 import { exportRemoteConfig } from './commands/exportRemoteConfig';
@@ -20,7 +20,7 @@ const commands = [
     importRemoteConfig,
     exportRemoteConfig,
     config,
-    blacklist,
+    blocklist,
 ];
 
 program.name('firebase-cli');
