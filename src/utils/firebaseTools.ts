@@ -57,20 +57,22 @@ export async function collectionsExists(db: Firestore, collections: string[]): P
  * @param { boolean } allCollections select all collections of the project.
  * @param { string[] } collectionNames list of the names of the selected collections.
  * @param { string } projectId id of the current project id for logging.
+ * @param { boolean } askUserIfInvalid true if you want to ask the user to select collections in case the given ones are not valid.
  */
 export async function validateCollectionList(
     db: Firestore,
     allCollections: boolean | undefined,
     collectionNames: string[] | undefined,
-    projectId: string
+    projectId: string,
+    askUserIfInvalid: boolean = true
 ): Promise<string[]> {
     if (allCollections) return db.listCollections().then((l) => l.map((c) => c.id));
     if (!collectionNames || collectionNames.length <= 0)
-        return selectManyBetweenExistingCollections(db);
+        return exitProcess(1, `No collection found in the project`);
     if (await collectionsExists(db, collectionNames)) return collectionNames;
 
     logError(`One or more given collection cannot be found in the ${projectId} project`);
-    return selectManyBetweenExistingCollections(db);
+    return askUserIfInvalid ? selectManyBetweenExistingCollections(db) : exitProcess(1);
 }
 
 /** Firestore **/
@@ -96,9 +98,10 @@ export async function importJsonToFirestore(jsonPath: string, db: Firestore) {
                 for (const documentName in documents) {
                     operations.push(
                         db
-                        .collection(collectionName)
-                        .doc(documentName)
-                        .set(documents[documentName]).then(increment)
+                            .collection(collectionName)
+                            .doc(documentName)
+                            .set(documents[documentName])
+                            .then(increment)
                     );
                 }
                 await Promise.all(operations);

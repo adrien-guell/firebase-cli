@@ -5,7 +5,7 @@ import { parseFile } from './utils';
 import { ServiceAccount, serviceAccountDecoder } from '../types/ServiceAccount';
 import cert = admin.credential.cert;
 import { getBlocklist, getServiceAccountPath, setDefaultServiceAccountPath } from './configTools';
-import { logError, promptBinaryQuestion, promptOpenQuestion } from './promptTools';
+import { exitProcess, logError, promptBinaryQuestion, promptOpenQuestion } from './promptTools';
 
 /**
  * Check if the given file path is a valid service account file.
@@ -78,13 +78,18 @@ export async function getServiceAccountWithUserInput(
  * @return A valid service account object.
  * @param { string } serviceAccountPath path of the service account file to check and parse.
  * @param { string| undefined } customMessage message prompted to the user. If not given, a default one will be prompted.
+ * @param { boolean } askUserIfInvalid true if you want to ask the user for a service account path in case the given one is not valid.
  */
 export async function validateAndParseServiceAccountPath(
     serviceAccountPath: string,
+    askUserIfInvalid: boolean = true,
     customMessage?: string
 ): Promise<ServiceAccount> {
-    return isValidServiceAccountPath(serviceAccountPath, true) != true
-        ? getServiceAccountWithUserInput(customMessage)
+    const isValid = isValidServiceAccountPath(serviceAccountPath, true);
+    return isValid != true
+        ? askUserIfInvalid
+            ? getServiceAccountWithUserInput(customMessage)
+            : exitProcess(1, `${isValid}`)
         : parseFile(serviceAccountPath, serviceAccountDecoder);
 }
 

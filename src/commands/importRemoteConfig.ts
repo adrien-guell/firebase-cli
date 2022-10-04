@@ -5,9 +5,14 @@ import {
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
 import * as fs from 'fs';
-import { exitProcess, logSuccess, promptValidateOrExit } from '../utils/promptTools';
+import {
+    exitProcess,
+    logSuccess,
+    promptProjectInfos,
+    promptValidateOrExit,
+} from '../utils/promptTools';
 import * as chalk from 'chalk';
-import { importJsonToRemoteConfig } from '../utils/firestoreTools';
+import { importJsonToRemoteConfig } from '../utils/firebaseTools';
 
 export const importRemoteConfig: Command = {
     name: 'import-remote-config',
@@ -44,8 +49,12 @@ async function importRemoteConfigAction(
     options?: importRemoteConfigOptions
 ): Promise<void> {
     const serviceAccount = options?.serviceAccountPath
-        ? await validateAndParseServiceAccountPath(options.serviceAccountPath)
+        ? await validateAndParseServiceAccountPath(
+              options.serviceAccountPath,
+              options?.force != true
+          )
         : await getServiceAccountWithConfigOrUserInput();
+    promptProjectInfos(serviceAccount);
 
     const app = await getFirebaseApp(serviceAccount);
 

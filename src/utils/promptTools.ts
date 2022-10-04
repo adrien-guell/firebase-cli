@@ -1,8 +1,9 @@
 import * as chalk from 'chalk';
 import * as inquirer from 'inquirer';
 import { Presets, SingleBar } from 'cli-progress';
-import { formatDate } from './utils';
 import * as fs from 'fs';
+import { ServiceAccount } from '../types/ServiceAccount';
+import { debuglog } from 'util';
 
 /** Log **/
 export function logError(message: string) {
@@ -19,6 +20,15 @@ export function exitProcess(code: number = 0, message: string = 'Operation cance
 }
 
 /** Prompt **/
+/**
+ *
+ * @param serviceAccount
+ */
+export function promptProjectInfos(serviceAccount: ServiceAccount) {
+    console.log(
+        `== You are currently working on the project: ${chalk.red(serviceAccount.project_id)}`
+    );
+}
 
 /**
  * Prompt a message and wait for user validation or cancellation. Expected inputs from user are yes or no.
@@ -146,19 +156,23 @@ export async function promptBinaryQuestion(
  * @param { string | undefined } path path with filename to check.
  * @param { boolean | undefined } overwrite force to overwrite the file.
  * @param { string | undefined } defaultPrefix filename prefix.
+ * @param { boolean } askUserIfOverwrite true if you want to ask the user if he wants to overwrite.
  */
 export async function getFilenameWithOverwriteValidation(
     path: string | undefined,
     overwrite: boolean | undefined,
-    defaultPrefix: string = ''
+    defaultPrefix: string = '',
+    askUserIfOverwrite: boolean = true
 ) {
-    let filename = path ?? `${defaultPrefix}-${formatDate(new Date())}.json`;
+    let filename = path ?? `${defaultPrefix}-${Date.now()}.json`;
     if (
         fs.existsSync(filename) &&
         !overwrite &&
-        !(await promptBinaryQuestion(
-            `File already exists: ${filename}.\nWould you like to overwrite it ?`
-        ))
+        !(askUserIfOverwrite
+            ? await promptBinaryQuestion(
+                  `File already exists: ${filename}.\nWould you like to overwrite it ?`
+              )
+            : exitProcess(1, `File already exists: ${filename}.`))
     ) {
         let i = 1;
         while (fs.existsSync(`${filename}-${i}`)) {

@@ -4,9 +4,9 @@ import {
     getServiceAccountWithConfigOrUserInput,
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
-import { deleteCollectionsFromFirestore, validateCollectionList } from '../utils/firestoreTools';
+import { deleteCollectionsFromFirestore, validateCollectionList } from '../utils/firebaseTools';
 import * as chalk from 'chalk';
-import { logSuccess, promptCustomValidateOrExit } from '../utils/promptTools';
+import { logSuccess, promptCustomValidateOrExit, promptProjectInfos } from '../utils/promptTools';
 import { listToBullets } from '../utils/utils';
 
 export const deleteCollections: Command = {
@@ -50,8 +50,12 @@ type deleteCollectionsOptions = {
 
 async function deleteCollectionsAction(options?: deleteCollectionsOptions): Promise<void> {
     const serviceAccount = options?.serviceAccountPath
-        ? await validateAndParseServiceAccountPath(options.serviceAccountPath)
+        ? await validateAndParseServiceAccountPath(
+              options.serviceAccountPath,
+              options?.force != true
+          )
         : await getServiceAccountWithConfigOrUserInput();
+    promptProjectInfos(serviceAccount);
 
     const app = await getFirebaseApp(serviceAccount);
     const db = app.firestore();
@@ -60,7 +64,8 @@ async function deleteCollectionsAction(options?: deleteCollectionsOptions): Prom
         db,
         options?.allCollections,
         options?.collections,
-        serviceAccount.project_id
+        serviceAccount.project_id,
+        options?.force != true
     );
 
     if (options?.force != true) {

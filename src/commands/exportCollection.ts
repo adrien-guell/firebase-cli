@@ -5,10 +5,11 @@ import {
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
 import * as chalk from 'chalk';
-import { exportJsonFromFirestore, validateCollectionList } from '../utils/firestoreTools';
+import { exportJsonFromFirestore, validateCollectionList } from '../utils/firebaseTools';
 import {
     getFilenameWithOverwriteValidation,
     logSuccess,
+    promptProjectInfos,
     promptValidateOrExit,
 } from '../utils/promptTools';
 import { listToBullets } from '../utils/utils';
@@ -69,8 +70,12 @@ async function exportCollectionAction(
     options?: exportCollectionOptions
 ): Promise<void> {
     const serviceAccount = options?.serviceAccountPath
-        ? await validateAndParseServiceAccountPath(options.serviceAccountPath)
+        ? await validateAndParseServiceAccountPath(
+              options.serviceAccountPath,
+              options?.force != true
+          )
         : await getServiceAccountWithConfigOrUserInput();
+    promptProjectInfos(serviceAccount);
 
     const app = await getFirebaseApp(serviceAccount);
     const db = app.firestore();
@@ -79,13 +84,15 @@ async function exportCollectionAction(
         db,
         options?.allCollections,
         collections,
-        serviceAccount.project_id
+        serviceAccount.project_id,
+        options?.force != true
     );
 
     const filename = await getFilenameWithOverwriteValidation(
         options?.outputFile,
         options?.overwrite,
-        'firestore_export'
+        'firestore_export',
+        options?.force != true
     );
 
     if (options?.force != true) {

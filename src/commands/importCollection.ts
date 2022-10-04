@@ -6,8 +6,13 @@ import {
 } from '../utils/serviceAccountTools';
 import * as fs from 'fs';
 import * as chalk from 'chalk';
-import { exitProcess, logSuccess, promptValidateOrExit } from '../utils/promptTools';
-import {importJsonToFirestore, importJsonToFirestoreWithBatch} from '../utils/firestoreTools';
+import {
+    exitProcess,
+    logSuccess,
+    promptProjectInfos,
+    promptValidateOrExit,
+} from '../utils/promptTools';
+import { importJsonToFirestore, importJsonToFirestoreWithBatch } from '../utils/firebaseTools';
 
 export const importCollection: Command = {
     name: 'import-collection',
@@ -26,9 +31,9 @@ export const importCollection: Command = {
             info: 'Path to the service account used to access the project',
         },
         {
-          name: 'batch',
-          short: 'b',
-          info: 'Use the batch API to push the collections faster (use for large collections)'
+            name: 'batch',
+            short: 'b',
+            info: 'Use the batch API to push the collections faster (use for large collections)',
         },
         {
             name: 'force',
@@ -50,8 +55,12 @@ async function importCollectionAction(
     options?: importCollectionOptions
 ): Promise<void> {
     const serviceAccount = options?.serviceAccountPath
-        ? await validateAndParseServiceAccountPath(options.serviceAccountPath)
+        ? await validateAndParseServiceAccountPath(
+              options.serviceAccountPath,
+              options?.force != true
+          )
         : await getServiceAccountWithConfigOrUserInput();
+    promptProjectInfos(serviceAccount);
 
     const app = await getFirebaseApp(serviceAccount);
     const db = app.firestore();

@@ -29,14 +29,14 @@ firebase-cli export-remote-config -o remote-config.json
 
 firebase-cli import-remote-config remote-config.json
 
-* renomer blocklist en blocklist
+** renomer blocklist en blocklist
 * parraleliser les appels firestore
 * checker batch option
-checker le -f en cas d'erreur
-checker liste vide quand on recup les collections
-ajouter le mois ou changer en timestamp
-ajouter un projet qui dit sur quel projet on est
+* checker le -f en cas d'erreur
+* checker liste vide quand on recup les collections
+* ajouter le mois ou changer en timestamp
+* ajouter un prompt qui dit sur quel projet on est
 prettify json output (option)
 faire ressortir le nom du projet
-non ca degage on blocklist
+
 generateur de tests

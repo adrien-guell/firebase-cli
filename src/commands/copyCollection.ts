@@ -4,9 +4,9 @@ import {
     getServiceAccountWithConfigOrUserInput,
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
-import { copyCollectionAcrossProjects, validateCollectionList } from '../utils/firestoreTools';
+import { copyCollectionAcrossProjects, validateCollectionList } from '../utils/firebaseTools';
 import * as chalk from 'chalk';
-import { logSuccess, promptValidateOrExit } from '../utils/promptTools';
+import { logSuccess, promptProjectInfos, promptValidateOrExit } from '../utils/promptTools';
 import { listToBullets } from '../utils/utils';
 
 export const copyCollection: Command = {
@@ -60,8 +60,12 @@ export async function copyCollectionAction(
     const sourceServicePrompt =
         'What is the path to the firebase service account of the source project ?';
     const sourceServiceAccount = options?.sourceServiceAccountPath
-        ? await validateAndParseServiceAccountPath(options.sourceServiceAccountPath)
+        ? await validateAndParseServiceAccountPath(
+              options.sourceServiceAccountPath,
+              options?.force != true
+          )
         : await getServiceAccountWithConfigOrUserInput(sourceServicePrompt);
+    promptProjectInfos(sourceServiceAccount);
     const sourceApp = await getFirebaseApp(sourceServiceAccount, 'source');
     const sourceDb = sourceApp.firestore();
 
@@ -69,6 +73,7 @@ export async function copyCollectionAction(
         'What is the path to the firebase service account of the destination project ?';
     const destinationServiceAccount = await validateAndParseServiceAccountPath(
         destinationServiceAccountPath,
+        options?.force != true,
         destinationServicePrompt
     );
     const destinationApp = await getFirebaseApp(destinationServiceAccount, 'destination');
@@ -78,7 +83,8 @@ export async function copyCollectionAction(
         sourceDb,
         options?.allCollections,
         options?.collections,
-        sourceServiceAccount.project_id
+        sourceServiceAccount.project_id,
+        options?.force != true
     );
 
     if (options?.force != true) {

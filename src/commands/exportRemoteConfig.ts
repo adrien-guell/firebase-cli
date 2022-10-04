@@ -5,10 +5,11 @@ import {
     validateAndParseServiceAccountPath,
 } from '../utils/serviceAccountTools';
 import * as chalk from 'chalk';
-import { exportJsonFromRemoteConfig } from '../utils/firestoreTools';
+import { exportJsonFromRemoteConfig } from '../utils/firebaseTools';
 import {
     getFilenameWithOverwriteValidation,
     logSuccess,
+    promptProjectInfos,
     promptValidateOrExit,
 } from '../utils/promptTools';
 
@@ -52,15 +53,20 @@ type exportRemoteConfigOptions = {
 
 async function exportRemoteConfigAction(options?: exportRemoteConfigOptions): Promise<void> {
     const serviceAccount = options?.serviceAccountPath
-        ? await validateAndParseServiceAccountPath(options.serviceAccountPath)
+        ? await validateAndParseServiceAccountPath(
+              options.serviceAccountPath,
+              options?.force != true
+          )
         : await getServiceAccountWithConfigOrUserInput();
+    promptProjectInfos(serviceAccount);
 
     const app = await getFirebaseApp(serviceAccount);
 
     const filename = await getFilenameWithOverwriteValidation(
         options?.outputFile,
         options?.overwrite,
-        'remote_config'
+        'remote_config',
+        options?.force != true
     );
 
     if (options?.force != true) {
