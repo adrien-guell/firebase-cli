@@ -33,7 +33,7 @@
     "typescript-json-decoder": "^1.0.10"
   },
   "name": "firebase-utils-cli",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "CLI to perform complex firebase operations",
   "keywords": [
     "cli",
@@ -41,6 +41,6 @@
   ],
   "author": "Adrien Guell",
   "license": "ICS",
-  "repository": "https://gitlab.com/viseo-pwm-poc/firebase-cli",
-  "homepage": "https://gitlab.com/viseo-pwm-poc/firebase-cli"
+  "repository": "https://github.com/adrien-guell/firebase-cli",
+  "homepage": "https://github.com/adrien-guell/firebase-cli"
 }
